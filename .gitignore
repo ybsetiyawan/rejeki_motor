@@ -17,9 +17,6 @@ build/
 # Coverage
 coverage/
 
-# Nuxt.js build output
-.nuxt/
-
 # Cache
 .cache/
 
@@ -29,9 +26,6 @@ coverage/
 # Temporary files
 *.tmp
 
-# Public folder (Jika diperlukan)
-public/
-
 # Mengabaikan file .log
 *.xlsx
 
@@ -40,6 +34,3 @@ public/
 
 # Mengabaikan file .zip
 *.zip
-
-# Mengabaikan file server.js
-server.js
