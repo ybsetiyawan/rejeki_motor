@@ -1,0 +1,33 @@
+.font th{
+    background-color: #f2f2f2; /* Warna latar belakang untuk header */
+    font-weight: bold; /* Atur teks header menjadi tebal */
+  }
+
+  .scrollable-table {
+    width: 100%; /* Pastikan tabel menggunakan seluruh lebar yang tersedia */
+    max-height: 69vh; /* Atur sesuai kebutuhan */
+    overflow-y: auto;
+  }
+  th, td {
+    white-space: nowrap;
+    width: 20%; /* Contoh: Tetapkan lebar yang sama untuk semua kolom */
+  }
+  
+  /* Jika perlu, tetapkan lebar spesifik untuk setiap kolom */
+  
+  th{
+    font-size: medium !important;
+    
+  }.font {
+    font-family: Calibri;
+  }
+
+  
+  .kode-jenis, .nama-jenis, .id-satuan, .nama-satuan  {
+    width: 20%; /* Sesuaikan lebar sesuai kebutuhan */
+  }
+  .nama-jenis, .nama-satuan {
+    width: 70%; /* Sesuaikan lebar sesuai kebutuhan */
+  
+  }
+  

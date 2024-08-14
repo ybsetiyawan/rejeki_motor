@@ -1,0 +1,45 @@
+# Node modules
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+build/
+
+# Coverage
+coverage/
+
+# Nuxt.js build output
+.nuxt/
+
+# Cache
+.cache/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+
+# Public folder (Jika diperlukan)
+public/
+
+# Mengabaikan file .log
+*.xlsx
+
+# Mengabaikan file .tmp
+*.bat
+
+# Mengabaikan file .zip
+*.zip
+
+# Mengabaikan file server.js
+server.js

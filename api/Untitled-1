@@ -1,0 +1,21 @@
+SELECT
+    tr.no_receipt AS no_receipt,
+    tr.tanggal AS tanggal,
+    ms.kode AS kode_supplier,
+    ms.nama AS nama_supplier,
+    mi.kode AS kode_item,
+    mi.nama AS nama_item,
+    trd.qty AS qty_item,
+    msatuan.nama AS uom
+ FROM
+    t_trans_receipt tr
+    JOIN
+    t_trans_receipt_detail trd ON tr.id = trd.no_receipt
+    JOIN
+    m_supplier ms ON tr.id_supplier = ms.id
+    JOIN
+    m_item mi ON trd.id_barang = mi.id
+    JOIN
+    m_satuan msatuan ON mi.id_satuan = msatuan.id
+ ORDER BY
+    tr.tanggal DESC;
