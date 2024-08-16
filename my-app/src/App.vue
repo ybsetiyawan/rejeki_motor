@@ -78,7 +78,7 @@
     <!-- Footer -->
     <v-footer color="#ea3a3a" app class="footer-small">
       <div class="scrolling-text">
-        <span class="white--text">&copy; 2024 Rejeki Motor. Hak Cipta Dilindungi. This program was created with seriousness by YBS and Cursor AI</span>
+        <span class="white--text">&copy; 2024 Rejeki Motor. | Aplikasi Inventory Sederhana | by YBS </span>
       </div>
     </v-footer>
   </v-app>
