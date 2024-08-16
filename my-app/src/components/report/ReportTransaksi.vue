@@ -251,7 +251,7 @@ export default {
               totalhpp: [{
                 totalhpp: formatHarga(item.qty_item * item.hpp)
               }],
-              laba: [{ laba: formatHarga(labaItem) }], // Simpan labaItem pertama
+              laba: [{ laba: (labaItem) }], // Simpan labaItem pertama
             });
           }
           return acc;
