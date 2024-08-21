@@ -54,6 +54,15 @@
             title="Export to Excel"
           > <v-icon>mdi-microsoft-excel</v-icon>
           </v-btn>
+          <v-btn
+        class="mt-4 ml-2"
+            @click="exportToPDF"
+            :disabled="desserts.length === 0"
+            variant="outlined"
+            color="orange"
+            title="Export to PDF"
+          > <v-icon size="30">mdi-file-pdf-box</v-icon>
+          </v-btn>
         </v-col>
       </v-row>
 
@@ -69,6 +78,14 @@
           <ul>
             <li v-for="(detail, index) in item.items" :key="index">
               {{ detail.nama_item }}
+            </li>
+          </ul>
+        </template>
+
+        <template v-slot:[`item.kode`]="{ item }">
+          <ul>
+            <li v-for="(detail, index) in item.kode" :key="index">
+              {{ detail.kode_item }}
             </li>
           </ul>
         </template>
@@ -151,6 +168,8 @@
 import api from '../../services/api';
 import { formatHarga } from '@/mixins/FilterMixin';
 import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf'; // Import jsPDF
+import 'jspdf-autotable'; // Import jsPDF autoTable
 
 export default {
   data () {
@@ -163,6 +182,7 @@ export default {
         { text: 'Nomor Faktur', value: 'nomor_faktur' },
         { text: 'Customer', value: 'customer' },
         { text: 'Items', value: 'items' },
+        { text: 'Kode', value: 'kode' },
         { text: 'Qty', value: 'qty' },
         { text: 'Uom', value: 'uom' },
         { text: 'Modal', value: 'modal'},
@@ -192,19 +212,25 @@ export default {
           return (!this.dateFrom || itemDate >= fromDate) && (!this.dateTo || itemDate <= toDate);
         });
 
+        // Urutkan filteredData berdasarkan tanggal
+        filteredData.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+
         if (filteredData.length === 0) {
           this.dialog = true; // Tampilkan dialog jika tidak ada data
         }
 
-        const formatter = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+        const formatter = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: '2-digit', year: '2-digit' });
         
         const mergedData = filteredData.reduce((acc, item) => {
-          const labaItem = ((item.qty_item * item.hpp) - (item.qty_item * item.modal)); // Hitung labaItem
+          // const labaItem = ((item.qty_item * item.hpp) - (item.qty_item * item.modal)); // Hitung labaItem
           const existing = acc.find(i => i.nomor_faktur === item.nomor_faktur);
           
           if (existing) {
             existing.items.push({
               nama_item: item.nama_item,
+            });
+            existing.kode.push({
+              kode_item: item.kode_item
             });
             existing.qty.push({
               qty_item: item.qty_item
@@ -224,7 +250,9 @@ export default {
             existing.totalhpp.push({
               totalhpp: formatHarga(item.qty_item * item.hpp)
             });
-            existing.laba[0].laba += labaItem; // Tambahkan labaItem ke total laba
+            existing.laba.push({
+              laba: formatHarga(((item.qty_item * item.hpp) - (item.qty_item * item.modal)))
+            }); // Tambahkan labaItem ke total laba
           } else {
             acc.push({
               nomor_faktur: item.nomor_faktur,
@@ -232,6 +260,9 @@ export default {
               customer: item.nama_customer,
               items: [{
                 nama_item: item.nama_item,
+              }],
+              kode: [{
+                kode_item: item.kode_item
               }],
               qty: [{
                 qty_item: item.qty_item
@@ -251,20 +282,117 @@ export default {
               totalhpp: [{
                 totalhpp: formatHarga(item.qty_item * item.hpp)
               }],
-              laba: [{ laba: (labaItem) }], // Simpan labaItem pertama
+              laba: [{
+                laba: formatHarga((item.qty_item * item.hpp) - (item.qty_item * item.modal))  
+              }], // Simpan labaItem pertama
             });
           }
           return acc;
         }, []);
-        
+
+        // // Hitung total laba untuk semua item dalam nomor faktur
+        // mergedData.forEach(item => {
+        //   item.totalLaba = item.laba.reduce((sum, laba) => sum + laba.laba, 0); // Hitung total laba
+        // });
+
         this.desserts = mergedData;
-        this.totalLaba = formatHarga(mergedData.reduce((sum, item) => sum + item.laba[0].laba, 0)); // Hitung total laba berdasarkan nomor faktur
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     },
     exportToExcel() {
       // Flatten the data structure
+      const flattenedData = this.desserts.map(item => {
+        const maxLength = Math.max(item.items.length, item.kode.length, item.qty.length,
+                                    item.uom.length, item.modal.length,
+                                    item.hpp.length, item.totalhpp.length,
+                                    item.totalmodal.length, item.laba.length );
+        const rows = [];
+        for (let i = 0; i < maxLength; i++) {
+          rows.push({
+            tanggal: item.tanggal,
+            nomor_faktur: item.nomor_faktur,
+            customer: item.customer,
+            items: item.items[i] ? item.items[i].nama_item : '',
+            kode: item.kode[i] ? item.kode[i].kode_item : '',
+            qty: item.qty[i] ? item.qty[i].qty_item : 0, // Pastikan ini adalah angka
+            uom: item.uom[i] ? item.uom[i].uom : '',
+            modal: item.modal[i] ? parseFloat(item.modal[i].modal.replace(/\./g, '').replace(',', '.')) : 0, // Hapus formatHarga
+            hpp: item.hpp[i] ? parseFloat(item.hpp[i].hpp.replace(/\./g, '').replace(',', '.')) : 0, // Hapus formatHarga
+            totalhpp: item.totalhpp[i] ? parseFloat(item.totalhpp[i].totalhpp.replace(/\./g, '').replace(',', '.')) : 0, // Hapus formatHarga
+            totalmodal: item.totalmodal[i] ? parseFloat(item.totalmodal[i].totalmodal.replace(/\./g, '').replace(',', '.')) : 0, // Hapus formatHarga
+            laba: item.laba[i] ? parseFloat(item.laba[i].laba.replace(/\./g, '').replace(',', '.')) : 0, // Hapus formatHarga
+          });
+        }
+        return rows;
+      }).flat();
+
+      const subtotalModal = this.desserts.reduce((total, item) => {
+        return total + item.modal.reduce((sum, modal) => sum + parseFloat(modal.modal.replace(/\./g, '').replace(',', '.')), 0);
+      }, 0);
+
+      const subtotalLaba = this.desserts.reduce((total, item) => {
+        return total + item.laba.reduce((sum, laba) => sum + parseFloat(laba.laba.replace(/\./g, '').replace(',', '.')), 0);
+      }, 0);
+
+      const subtotalTotalHpp = this.desserts.reduce((total, item) => {
+        return total + item.totalhpp.reduce((sum, totalhpp) => sum + parseFloat(totalhpp.totalhpp.replace(/\./g, '').replace(',', '.')), 0);
+      }, 0);
+
+      const subtotalTotalModal = this.desserts.reduce((total, item) => {
+        return total + item.totalmodal.reduce((sum, totalmodal) => sum + parseFloat(totalmodal.totalmodal.replace(/\./g, '').replace(',', '.')), 0);
+      }, 0);
+
+      const subtotalTotalQty = this.desserts.reduce((total, item) => {
+        return total + item.qty.reduce((sum, qty) => sum + qty.qty_item, 0);
+      }, 0);
+      
+      const subtotalHpp = this.desserts.reduce((total, item) => {
+        return total + item.hpp.reduce((sum, hpp) => sum + parseFloat(hpp.hpp.replace(/\./g, '').replace(',', '.')), 0);
+      }, 0);
+      
+      const subtotalRow = {
+        tanggal: 'Subtotal',
+        nomor_faktur: '',
+        customer: '',
+        items: '',
+        kode: '',
+        qty: subtotalTotalQty, // Hitung subtotal qty
+        uom: '',
+        modal: subtotalModal,
+        hpp: subtotalHpp,
+        totalhpp: subtotalTotalHpp,
+        totalmodal: subtotalTotalModal,
+        laba: subtotalLaba,
+      };
+      flattenedData.push(subtotalRow); // Tambahkan subtotal ke data
+      
+      const formattedDateFrom = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: '2-digit', year: '2-digit' }).format(new Date(this.dateFrom));
+      const formattedDateTo = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: '2-digit', year: '2-digit' }).format(new Date(this.dateTo));
+      
+      const reportInfo = [{
+        tanggal: `Tanggal Laporan: ${formattedDateFrom} - ${formattedDateTo}`,
+        nomor_faktur: '',
+        customer: '',
+        items: '',
+        kode: '',
+        qty: '',
+        uom: '',
+        modal: '',
+        hpp: '',
+        totalhpp: '',
+        totalmodal: '',
+        laba: '',
+      }];
+      
+      const dataToExport = [...reportInfo, ...flattenedData];
+
+      const ws = XLSX.utils.json_to_sheet(dataToExport);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Report");
+      XLSX.writeFile(wb, "Rpt_penjualan.xlsx");
+    },
+    exportToPDF() {
       const flattenedData = this.desserts.map(item => {
         const maxLength = Math.max(item.items.length, item.qty.length,
                                     item.uom.length, item.modal.length,
@@ -277,22 +405,100 @@ export default {
             nomor_faktur: item.nomor_faktur,
             customer: item.customer,
             items: item.items[i] ? item.items[i].nama_item : '',
-            qty: item.qty[i] ? item.qty[i].qty_item : 0, // Pastikan ini adalah angka
+            kode: item.kode[i] ? item.kode[i].kode_item : '',
+            qty: item.qty[i] ? item.qty[i].qty_item : 0,
             uom: item.uom[i] ? item.uom[i].uom : '',
-            modal: item.modal[i] ? parseFloat(item.modal[i].modal.replace(/\./g, '').replace(',', '.')) : 0, // Hapus formatHarga
-            hpp: item.hpp[i] ? parseFloat(item.hpp[i].hpp.replace(/\./g, '').replace(',', '.')) : 0, // Hapus formatHarga
-            totalhpp: item.totalhpp[i] ? parseFloat(item.totalhpp[i].totalhpp.replace(/\./g, '').replace(',', '.')) : 0, // Hapus formatHarga
-            totalmodal: item.totalmodal[i] ? parseFloat(item.totalmodal[i].totalmodal.replace(/\./g, '').replace(',', '.')) : 0, // Hapus formatHarga
-            laba: i === maxLength - 1 ? (item.laba.length > 0 ? parseFloat(item.laba[0].laba.replace(/\./g, '').replace(',', '.')) : 0) : '' // Pastikan ini adalah angka
+            modal: item.modal[i] ? item.modal[i].modal : 0,
+            hpp: item.hpp[i] ? item.hpp[i].hpp : 0,
+            totalhpp: item.totalhpp[i] ? item.totalhpp[i].totalhpp : 0,
+            totalmodal: item.totalmodal[i] ? item.totalmodal[i].totalmodal : 0,
+            laba: item.laba[i] ? item.laba[i].laba : 0,
           });
         }
         return rows;
       }).flat();
 
-      const ws = XLSX.utils.json_to_sheet(flattenedData);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Report");
-      XLSX.writeFile(wb, "Rpt_penjualan.xlsx");
+      // Hitung subtotal
+      const subtotalModal = this.desserts.reduce((total, item) => {
+        return total + item.modal.reduce((sum, modal) => sum + parseFloat(modal.modal.replace(/\./g, '').replace(',', '.')), 0);
+      }, 0);
+
+      const subtotalLaba = this.desserts.reduce((total, item) => {
+        return total + item.laba.reduce((sum, laba) => sum + parseFloat(laba.laba.replace(/\./g, '').replace(',', '.')), 0);
+      }, 0);
+
+      const subtotalTotalHpp = this.desserts.reduce((total, item) => {
+        return total + item.totalhpp.reduce((sum, totalhpp) => sum + parseFloat(totalhpp.totalhpp.replace(/\./g, '').replace(',', '.')), 0);
+      }, 0);
+
+      const subtotalTotalModal = this.desserts.reduce((total, item) => {
+        return total + item.totalmodal.reduce((sum, totalmodal) => sum + parseFloat(totalmodal.totalmodal.replace(/\./g, '').replace(',', '.')), 0);
+      }, 0);
+
+      const subtotalTotalQty = this.desserts.reduce((total, item) => {
+        return total + item.qty.reduce((sum, qty) => sum + qty.qty_item, 0);
+      }, 0);
+
+      const subtotalHpp = this.desserts.reduce((total, item) => {
+        return total + item.hpp.reduce((sum, hpp) => sum + parseFloat(hpp.hpp.replace(/\./g, '').replace(',', '.')), 0);
+      }, 0);
+      
+      // Tambahkan subtotal ke flattenedData
+      const subtotalRow = [
+        'Subtotal',
+        '',
+        '',
+        '',
+        '',
+        subtotalTotalQty, // Hitung subtotal qty
+        '',
+        formatHarga(subtotalModal),
+        formatHarga(subtotalHpp),
+        formatHarga(subtotalTotalHpp),
+        formatHarga(subtotalTotalModal),
+        formatHarga(subtotalLaba),
+      ];
+      flattenedData.push(subtotalRow); // Tambahkan subtotal ke data
+      
+      const doc = new jsPDF();
+      
+      // Tambahkan keterangan tanggal laporan
+      doc.setFontSize(10); // Ukuran font untuk keterangan
+      doc.setFont('Arial', 'bold'); // Mengatur font menjadi Arial dan bold
+      
+      const formattedDateFrom = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: '2-digit', year: '2-digit' }).format(new Date(this.dateFrom));
+      const formattedDateTo = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: '2-digit', year: '2-digit' }).format(new Date(this.dateTo));
+      
+      doc.text('Laporan Penjualan Rejeki Motor', 14, 7); // Posisi keterangan
+      
+
+      doc.text(`Periode: ${formattedDateFrom} s/d ${formattedDateTo}`, 14, 12); // Posisi keterangan
+
+      doc.autoTable({
+        head: [['Tanggal', 'Nomor Faktur', 'Customer', 'Items', 'Kode', 'Qty', 'Uom', 'Modal', 'Harga Jual', 'Total Harga Jual', 'Total Modal', 'Laba']],
+        body: [
+          ...flattenedData.map(item => [
+            item.tanggal,
+            item.nomor_faktur,
+            item.customer,
+            item.items,
+            item.kode,
+            item.qty,
+            item.uom,
+            item.modal,
+            item.hpp,
+            item.totalhpp,
+            item.totalmodal,
+            item.laba,
+          ]),
+          subtotalRow // Pastikan subtotalRow ditambahkan di sini
+        ],
+        styles: {
+          font: 'Arial',
+          fontSize: 8,
+        },
+      });
+      doc.save("Rpt_penjualan.pdf");
     }
   }
 }

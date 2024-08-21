@@ -19,7 +19,7 @@
                       :disabled="isItemIncart(item) || item.stok <= 0"
                       >
                       <v-list-item-content>
-                        <v-list-item-title class="customer-text">{{ item.kode + ' - ' + item.nama }}</v-list-item-title>
+                        <v-list-item-title class="customer-text">{{ item.kode + ' - ' + item.nama + ' - ' + formatHarga(item.modal) }}</v-list-item-title>
                       </v-list-item-content>
                     </v-list-item>
                   </v-list>
@@ -160,8 +160,10 @@
 
 <script>
 import api from '../../services/api';
-import { loadCustomers, loadItems,  } from '../../utils/utils';
+import { loadCustomers, loadItems  } from '../../utils/utils';
 import InvoiceView from '../print/InvoiceView.vue';
+import { formatHarga } from '@/mixins/FilterMixin';
+
 
 export default {
     components: { InvoiceView },
@@ -202,7 +204,8 @@ export default {
               uom: '',
               qty: 0,
               stok: ''
-            }
+            },
+            formatHarga
 
         };
     },
