@@ -74,25 +74,25 @@ const routes = [
     path: '/penjualan',
     name: 'penjualan',
     component: TransaksiNew,
-    meta: { requiresAuth: true, requiresRole: [1, 2] }
+    meta: { requiresAuth: true, requiresRole: [1] }
   },
   {
     path: '/pembelian',
     name: 'pembelian',
     component: ReceiptView,
-    meta: { requiresAuth: true, requiresRole: [1, 2] }
+    meta: { requiresAuth: true, requiresRole: [1] }
   },
   {
     path: '/retursupplier',
     name: 'retursupllier',
     component: ReturSupplier,
-    meta: { requiresAuth: true, requiresRole: [1, 2] }
+    meta: { requiresAuth: true, requiresRole: [1] }
   },
   {
     path: '/returcustomer',
     name: 'returcustomer',
     component: ReturCustomer,
-    meta: { requiresAuth: true, requiresRole: [1, 2] }
+    meta: { requiresAuth: true, requiresRole: [1] }
   },
   {
     path: '/report_penjualan',
