@@ -10,7 +10,7 @@
     >
       <!-- Konten dari navigation drawer -->
       <v-list dense>
-        <v-list-item v-for="item in items" :key="item.title" :to="item.link">
+        <v-list-item v-for="item in filteredItems" :key="item.title" :to="item.link">
           <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-item-icon>
@@ -142,6 +142,13 @@ export default {
     ...mapGetters(['user']), // Ambil data user dari Vuex
     drawerEnabled() {
       return !!this.user;
+    },
+    filteredItems() {
+      // Menampilkan hanya item "Laporan" jika role adalah 2
+      if (this.user && this.user.data.id_role === 2) {
+        return this.items.filter(item => item.title === "Laporan");
+      }
+      return this.items; // Tampilkan semua item jika role bukan 2
     }
   },
   watch: {
