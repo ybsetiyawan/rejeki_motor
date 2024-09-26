@@ -124,7 +124,7 @@
             <th>Kode</th>
             <th>Nama</th>
             <th>Modal</th>
-            <th>Hpp</th>
+            <th>Hjl</th>
             <th>Uom</th>
             <th>Qty</th>
             <th class="delete-column"></th>
@@ -230,6 +230,7 @@ export default {
         }
     },
     methods: {
+      // hpp adalah harga jual ke customer
       updateHpp(index, event) {
       const newValue = event.target.innerText.trim();
       // console.log(`Updating hpp for item at index ${index} to ${newValue}`);
@@ -255,8 +256,8 @@ export default {
             this.initialKeterangan = this.keterangan; // Save initial keterangan
         },
         addToCart() {
-          if (!this.transaction.tanggal) {
-            alert('Tanggal belum diisi. Mohon isi tanggal sebelum menambahkan item ke cart')
+          if (!this.transaction.tanggal || !this.item.nama ) {
+            alert('Tanggal belum diisi atau item belum dipilih')
             return;
           }
             if (this.formActive) {
@@ -601,8 +602,6 @@ h4{
 
 
 .save-button {
-  width: 100%;
-  padding: 10px;
   background-color: #007bff; /* Biru */
   color: white;
   border: none;

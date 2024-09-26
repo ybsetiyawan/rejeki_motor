@@ -242,8 +242,8 @@ export default {
             this.initialKeterangan = this.keterangan; // Save initial keterangan
         },
         addToCart() {
-          if (!this.transaction.tanggal) {
-            alert('Tanggal belum diisi. Mohon isi tanggal sebelum menambahkan item ke cart')
+          if (!this.transaction.tanggal || !this.item.nama) {
+            alert('Tanggal belum diisi atau item belum dipilih')
             return;
           }
 

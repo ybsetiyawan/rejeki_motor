@@ -224,8 +224,8 @@ export default {
             // await this.fetchLastNoReceipt();
         },
         addToCart() {
-          if (!this.receipt.tanggal) {
-            alert('Tanggal belum diisi. Mohon isi tanggal sebelum menambahkan item ke cart')
+          if (!this.receipt.tanggal || !this.receipt.itemName) {
+            alert('Tanggal belum diisi atau item belum dipilih')
             return;
           }
             if (this.formActive) {
