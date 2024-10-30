@@ -243,12 +243,50 @@ const delete_m_jenis_item = (request, response) => {
     });
 };
 
-//m_item
 const get_all_item = (request, response) => {
-    pool.query(pgqueri.get_all_m_item, (err, result) => {
-        response.status(200).json(result.rows);
+    const page = parseInt(request.query.page) || 1;
+    const pageSize = parseInt(request.query.pageSize) || 10;
+    const search = request.query.search || ''; // Ambil filter dari query
+
+    // Hitung total item berdasarkan filter
+    const countQuery = `
+        SELECT COUNT(*) AS total 
+        FROM m_item
+        JOIN m_jenis_item ON m_item.id_jenis_item = m_jenis_item.id
+        JOIN m_satuan ON m_item.id_satuan = m_satuan.id
+        WHERE m_item.kode ILIKE $1 OR m_item.nama ILIKE $1
+    `;
+    pool.query(countQuery, [`%${search}%`], (err, countResult) => {
+        if (err) {
+            return response.status(500).json({ error: err.message });
+        }
+
+        const totalItems = parseInt(countResult.rows[0].total);
+
+        // Ambil item sesuai halaman dan filter
+        const query = `
+            SELECT m_item.*, m_jenis_item.nama AS jenis_item_nama, m_satuan.nama AS satuan_nama
+            FROM m_item
+            JOIN m_jenis_item ON m_item.id_jenis_item = m_jenis_item.id
+            JOIN m_satuan ON m_item.id_satuan = m_satuan.id
+            WHERE m_item.kode ILIKE $1 OR m_item.nama ILIKE $1
+            LIMIT $2 OFFSET $3
+        `;
+        const offset = (page - 1) * pageSize;
+        pool.query(query, [`%${search}%`, pageSize, offset], (err, result) => {
+            if (err) {
+                return response.status(500).json({ error: err.message });
+            }
+
+            response.status(200).json({
+                items: result.rows,
+                total: totalItems,
+            });
+        });
     });
 };
+
+
 
 const get_item_min5 = (request, response) => {
     pool.query(pgqueri.get_item_min5, (err, result) => {

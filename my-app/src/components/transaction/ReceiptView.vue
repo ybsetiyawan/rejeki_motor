@@ -4,25 +4,40 @@
       <div class="form-header">
         <h3>Form Penerimaan Barang</h3>
         <button type="button" class="new-button" @click="activateForm" :disabled="formActive">New</button>
-        <v-dialog v-model="showItemList" max-width="700px" class="customer-dialog">
+        <v-dialog v-model="showItemList" max-width="700px" class="dialog">
           <v-card>
             <v-card-title>
               <span class="headline">Daftar Barang</span>
                 </v-card-title>
                 <v-card-text>
-                  <v-text-field v-model="searchQuery" label="Search Item" clearable></v-text-field>
+                  <!-- <v-text-field v-model="searchQuery" label="Search Item" clearable></v-text-field> -->
+                  <v-text-field
+                    class="font"
+                    label="Cari Berdasarkan Kode atau Nama Item"
+                    single-line
+                    hide-details
+                    v-model="searchQuery"
+                    @input="loadItems">
+                  </v-text-field>
                   <v-list>
                     <v-list-item 
-                      v-for="item in filteredItems" 
+                      v-for="item in items" 
                       :key="item.id"
                       @click="selectItem(item)"
                       :disabled="isItemIncart(item)"
                       >
                       <v-list-item-content>
-                        <v-list-item-title class="customer-text">{{ item.kode + ' - ' + item.nama }}</v-list-item-title>
+                        <v-list-item-title class="customer-text">{{ item.kode + ' - ' + item.nama + ' - ' + item.modal }}</v-list-item-title>
                       </v-list-item-content>
                     </v-list-item>
                   </v-list>
+                  <v-pagination
+                    class="custom-pagination"
+                    v-model="currentPage"
+                    :length="pageCount"
+                    :total-visible="7"
+                    @input="loadItems">
+                  </v-pagination>
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -48,6 +63,7 @@
                   </v-list-item-content>
                 </v-list-item>
               </v-list>
+              
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
@@ -180,7 +196,11 @@ export default {
             submitReceiptData: {},
             kodeReceipt: '',
             noReceipt: '',
-            saveReceipt: false
+            saveReceipt: false,
+            currentPage: 1,
+            pageSize: 10,
+            totalItems: 0, 
+
         };
     },
     watch: {
@@ -201,16 +221,20 @@ export default {
         filteredSuppliers() {
             return this.suppliers.filter(supplier => supplier.nama.toLowerCase().includes(this.searchSupplierQuery.toLowerCase()) ||
                 supplier.kode.toLowerCase().includes(this.searchSupplierQuery.toLowerCase()));
+        },
+        pageCount() {
+        return Math.ceil(this.totalItems / this.pageSize);
         }
     },
     methods: {
-        loadItems() {
-            loadItems().then(items => {
-                this.items = items.map(item => ({
-                    ...item,
-                }));
-            });
-        },
+       loadItems() {
+        loadItems(this.currentPage, this.pageSize, this.searchQuery)
+          .then(data => {
+            this.items = data.items;
+            this.totalItems = data.total
+          })
+          .catch(error => console.error('Error Loading Items:', error))
+       },
         loadSuppliers() {
             loadSuppliers().then(suppliers => {
                 this.suppliers = suppliers || [];
@@ -272,12 +296,12 @@ export default {
 
             try {
               
-            // console.log('Saving transaction with data:', {
-            //   id_supplier,
-            //   tanggal,
-            //   keterangan,
-            //   cart
-            // });
+            console.log('Saving transaction with data:', {
+              id_supplier,
+              tanggal,
+              keterangan,
+              cart
+            });
 
                 const response = await api.post('/t_trans_receipt', {
                     id_supplier: id_supplier,
@@ -333,7 +357,7 @@ export default {
             this.saveReceipt = false;
         },
         selectItem(item) {
-            this.receipt.idItem = item.item_id; // Set the id of the selected item
+            this.receipt.idItem = item.id; // Set the id of the selected item
             this.receipt.itemName = item.nama;
             this.receipt.itemCode = item.kode;
             this.receipt.uom = item.satuan_nama;
@@ -640,5 +664,13 @@ h4{
 .disabled-icon {
   pointer-events: none;
   color: #cccccc;
+}
+
+.dialog {
+  font-size: small;  
+}
+
+.customer-text {
+  font-size: 1.0em; /* Ukuran font lebih kecil */
 }
 </style>

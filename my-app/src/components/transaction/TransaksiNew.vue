@@ -10,10 +10,19 @@
               <span class="headline">Daftar Barang</span>
                 </v-card-title>
                 <v-card-text>
-                  <v-text-field v-model="searchQuery" label="Search Item" clearable></v-text-field>
+                  <!-- <v-text-field v-model="searchQuery" label="Search Item" clearable></v-text-field> -->
+                  <v-text-field
+                    class="font"
+                    label="Cari Berdasarkan Kode atau Nama Item"
+                    single-line
+                    hide-details
+                    v-model="searchQuery"
+                    @input="loadItems">
+                  </v-text-field>
+                  
                   <v-list>
                     <v-list-item 
-                      v-for="item in filteredItems" 
+                      v-for="item in items" 
                       :key="item.id"
                       @click="selectItem(item)"
                       :disabled="isItemIncart(item) || item.stok <= 0"
@@ -23,6 +32,13 @@
                       </v-list-item-content>
                     </v-list-item>
                   </v-list>
+                  <v-pagination
+                    class="custom-pagination"
+                    v-model="currentPage"
+                    :length="pageCount"
+                    :total-visible="7"
+                    @input="loadItems">
+                  </v-pagination>
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -98,7 +114,7 @@
         </div>
         <div class="flex-item">
           <label for="quantity">Qty:</label>
-          <input type="number" id="quantity" min="1" v-model="item.qty" required :disabled="!formActive" />
+          <input type="number" id="quantity" min="1" :max="item.stok" v-model="item.qty" required :disabled="!formActive" />
         </div>
         <div class="flex-item">
           <label for="stock">Stock:</label>
@@ -160,7 +176,7 @@
 
 <script>
 import api from '../../services/api';
-import { loadCustomers, loadItems  } from '../../utils/utils';
+import { loadCustomers, loadItems,  } from '../../utils/utils';
 import InvoiceView from '../print/InvoiceView.vue';
 import { formatHarga } from '@/mixins/FilterMixin';
 
@@ -185,6 +201,9 @@ export default {
             kodeInvoice:'',
             savedTransaction: null,
             showInvoice: false,
+            currentPage: 1,
+            pageSize: 10,
+            totalItems: 0, 
 
 
             transaction: {
@@ -219,15 +238,21 @@ export default {
             deep: true
         }
     },
+    // mounted() {
+    //   this.loadItems()
+    // },
     computed: {
-        filteredItems() {
-            return this.items.filter(item => item.nama.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-                item.kode.toLowerCase().includes(this.searchQuery.toLowerCase()));
-        },
+        // filteredItems() {
+        //     return this.items.filter(item => item.nama.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        //         item.kode.toLowerCase().includes(this.searchQuery.toLowerCase()));
+        // },
         filteredCustomers() {
             return this.customers.filter(customer => customer.nama.toLowerCase().includes(this.searchCustomerQuery.toLowerCase()) ||
                 customer.kode.toLowerCase().includes(this.searchCustomerQuery.toLowerCase()));
-        }
+        },
+        pageCount() {
+        return Math.ceil(this.totalItems / this.pageSize);
+    }
     },
     methods: {
       // hpp adalah harga jual ke customer
@@ -236,14 +261,16 @@ export default {
       // console.log(`Updating hpp for item at index ${index} to ${newValue}`);
       this.cart[index].hpp = newValue;
   },
-        loadItems() {
-            loadItems().then(items => {
-                this.items = items.map(item => ({
-                    ...item,
-                }));
-            });
-        },
-    
+       loadItems() {
+        loadItems(this.currentPage, this.pageSize, this.searchQuery)
+          .then(data => {
+            this.items = data.items;
+            this.totalItems = data.total
+          })
+          .catch(error => console.error('Error Loading Items:', error))
+       },
+
+       
         loadCustomers() {
             loadCustomers().then(customers => {
                 this.customers = customers || [];
@@ -413,6 +440,7 @@ export default {
 </script>
 
 <style scoped>
+
 .container {
   display: flex;
   justify-content: space-between;
@@ -677,5 +705,8 @@ h4{
 .disabled-icon {
   pointer-events: none;
   color: #cccccc;
+}
+.customer-text {
+  font-size: 1.0em; /* Ukuran font lebih kecil */
 }
 </style>

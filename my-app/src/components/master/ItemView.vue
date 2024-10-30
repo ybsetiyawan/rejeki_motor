@@ -9,6 +9,7 @@
         single-line
         hide-details
         v-model="search"
+        @input="loadItems"
       >
         <template v-slot:prepend-inner>
           <v-icon>mdi-magnify</v-icon>
@@ -119,7 +120,7 @@
     <!-- Tabel untuk Body dengan Scroll -->
     <v-simple-table class="scrollable-table font">
       <tbody>
-        <tr v-for="item in filteredItems" :key="item.id">
+        <tr v-for="item in items" :key="item.id">
           <td class="text-left column-width">{{ toUpperCase(item.kode) }}</td>
           <td class="text-left column-width">{{ toUpperCase(item.nama) }}</td>
           <td class="text-left column-width">{{ toUpperCase(item.jenis_item_nama) }}</td>
@@ -146,12 +147,20 @@
         </tr>
       </tbody>
     </v-simple-table>
+    <v-pagination
+    class="custom-pagination"
+    v-model="currentPage"
+    :length="pageCount"
+    :total-visible="7"
+    @input="loadItems"
+></v-pagination>
   </v-card>
 </template>
 <script>
 // import axios from 'axios';
 import api from '../../services/api';
-import { formatHarga, isUnique, toUpperCase, toUpperCaseFields, filterData } from '../../mixins/FilterMixin';
+import { formatHarga, isUnique, toUpperCase, toUpperCaseFields } from '../../mixins/FilterMixin';
+// import { loadItems } from '@/utils/utils';
 
 export default {
   name: 'ItemView',
@@ -165,14 +174,24 @@ export default {
       jenisItems: [], // Data untuk jenis item
       satuanItems: [], // Data untuk satuan
       valid: true,
+      currentPage: 1,
+      pageSize: 10,
+      totalItems: 0, 
       formatHarga,
       toUpperCase,
     }
   },
   computed: {
-    filteredItems() {
-      return filterData(this.items, this.search);
+    // filteredItems() {
+    //   return filterData(this.items, this.search);
+    // },
+    // filteredItems() {
+    //     return filterData(this.items, this.search);
+    // },
+    pageCount() {
+        return Math.ceil(this.totalItems / this.pageSize);
     }
+  
   },
   mounted() {
     this.loadItems();
@@ -181,12 +200,19 @@ export default {
   },
   methods: {
     loadItems() {
-      // axios.get('http://localhost:4000/m_item')
-      api.get('/m_item')
-      .then(response => {
-        this.items = response.data;
-      })
-    },
+    api.get('/m_item', {
+        params: {
+            page: this.currentPage,
+            pageSize: this.pageSize,
+            search: this.search, // Kirimkan filter pencarian
+        },
+    })
+    .then(response => {
+        this.items = response.data.items; // Data item
+        this.totalItems = response.data.total; // Total item dari backend
+    })
+    .catch(error => console.error('Error loading items:', error));
+},
     loadJenisItems() {
       // axios.get('http://localhost:4000/m_jenis_item')
       api.get('/m_jenis_item')
@@ -341,4 +367,10 @@ export default {
 .uom-column {
   width: 2%; /* Atur lebar kolom HPP sesuai kebutuhan */
 }
+.custom-pagination {
+  font-size: 0.2rem; /* Adjust the font size as needed */
+  padding: 3px; /* Adjust padding to reduce size */
+  font-family: calibri;
+}
+
 </style>

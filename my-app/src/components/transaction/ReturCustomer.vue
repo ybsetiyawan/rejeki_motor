@@ -10,10 +10,17 @@
               <span class="headline">Daftar Barang</span>
                 </v-card-title>
                 <v-card-text>
-                  <v-text-field v-model="searchQuery" label="Search Item" clearable></v-text-field>
+                  <v-text-field
+                    class="font"
+                    label="Cari Berdasarkan Kode atau Nama Item"
+                    single-line
+                    hide-details
+                    v-model="searchQuery"
+                    @input="loadItems">
+                  </v-text-field>
                   <v-list>
                     <v-list-item 
-                      v-for="item in filteredItems" 
+                      v-for="item in items" 
                       :key="item.id"
                       @click="selectItem(item)"
                       :disabled="isItemIncart(item)"
@@ -23,6 +30,13 @@
                       </v-list-item-content>
                     </v-list-item>
                   </v-list>
+                  <v-pagination
+                    class="custom-pagination"
+                    v-model="currentPage"
+                    :length="pageCount"
+                    :total-visible="7"
+                    @input="loadItems">
+                  </v-pagination>
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -149,17 +163,17 @@
         <button v-show="formActive" @click="cancelTransaction" class="cancel-button">Cancel</button>
       </div>  
     </div>
-    <InvoiceView v-if="showInvoice" :transaction="savedTransaction" :dialog="dialog" />
+    <!-- <InvoiceView v-if="showInvoice" :transaction="savedTransaction" :dialog="dialog" /> -->
   </div>
 </template>
 
 <script>
 import api from '../../services/api';
 import { loadCustomers, loadItems,  } from '../../utils/utils';
-import InvoiceView from '../print/InvoiceView.vue';
+// import InvoiceView from '../print/InvoiceView.vue';
 
 export default {
-    components: { InvoiceView },
+    // components: { InvoiceView },
     data() {
         return {
             keterangan: '',
@@ -178,6 +192,9 @@ export default {
             kodeRetur:'',
             savedTransaction: null,
             showInvoice: false,
+            currentPage: 1,
+            pageSize: 10,
+            totalItems: 0, 
 
 
             transaction: {
@@ -210,25 +227,27 @@ export default {
         }
     },
     computed: {
-        filteredItems() {
-            return this.items.filter(item => item.nama.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-                item.kode.toLowerCase().includes(this.searchQuery.toLowerCase()));
-        },
+        // filteredItems() {
+        //     return this.items.filter(item => item.nama.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        //         item.kode.toLowerCase().includes(this.searchQuery.toLowerCase()));
+        // },
         filteredCustomers() {
             return this.customers.filter(customer => customer.nama.toLowerCase().includes(this.searchCustomerQuery.toLowerCase()) ||
                 customer.kode.toLowerCase().includes(this.searchCustomerQuery.toLowerCase()));
+        },
+        pageCount() {
+        return Math.ceil(this.totalItems / this.pageSize);
         }
     },
     methods: {
-      
-  
         loadItems() {
-            loadItems().then(items => {
-                this.items = items.map(item => ({
-                    ...item,
-                }));
-            });
-        },
+        loadItems(this.currentPage, this.pageSize, this.searchQuery)
+          .then(data => {
+            this.items = data.items;
+            this.totalItems = data.total
+          })
+          .catch(error => console.error('Error Loading Items:', error))
+       },
     
         loadCustomers() {
             loadCustomers().then(customers => {
@@ -307,7 +326,7 @@ export default {
             console.log('New kodeRetur:', this.noRetur);
 
             this.savedTransaction = {
-              kodeInvoice: this.kodeInvoice,
+              kodeRetur: this.kodeRetur,
               kodeCustomer: this.transaction.kode,
               namaCustomer: this.transaction.nama,
               alamatCustomer: this.transaction.alamat,
@@ -318,10 +337,10 @@ export default {
               items: this.cart,
             };
 
-            // console.log('Saved Transaction:', this.savedTransaction);
+            console.log('Saved Transaction:', this.savedTransaction);
 
             // this.showInvoice = true;
-            // console.log('showInvoice set to:', this.showInvoice);
+            console.log('showInvoice set to:', this.showInvoice);
 
             alert('Transaksi berhasil disimpan!');
             this.cancelTransaction();
@@ -351,7 +370,7 @@ export default {
             this.saveReceipt = false;
         },
         selectItem(item) {
-            this.item.id = item.item_id;
+            this.item.id = item.id;
             this.item.nama = item.nama;
             this.item.kode = item.kode;
             this.item.uom = item.satuan_nama;

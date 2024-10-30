@@ -7,10 +7,28 @@ export function loadCustomers() {
     .then(response => response.data);
 }
 
-export function loadItems() {
-  // return axios.get('http://localhost:4000/m_item')
-  return api.get('/m_item')
-    .then(response => response.data);
+// export function loadItems() {
+//   // return axios.get('http://localhost:4000/m_item')
+//   return api.get('/m_item')
+//     .then(response => response.data);
+// }
+
+export function loadItems(currentPage, pageSize, searchQuery) {
+  return api.get('/m_item', {
+      params: {
+          page: currentPage,
+          pageSize: pageSize,
+          search: searchQuery,
+      },
+  }).then(response => {
+      return {
+          items: response.data.items,
+          total: response.data.total,
+      };
+  }).catch(error => {
+      console.error('Error loading items:', error);
+      throw error; // Melempar error agar bisa ditangani di tempat lain
+  });
 }
 
 export function loadSuppliers() {
