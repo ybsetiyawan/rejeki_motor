@@ -10,6 +10,16 @@
               <span class="headline">Daftar Barang</span>
                 </v-card-title>
                 <v-card-text>
+                  <v-btn
+                    color="blue"
+                    elevation="8"
+                    @click="searchItems"
+                    :disabled="!searchQuery"
+                    class="font"
+                    x-small
+                    >
+                    <v-icon>mdi-magnify</v-icon>
+                  </v-btn>
                   <!-- <v-text-field v-model="searchQuery" label="Search Item" clearable></v-text-field> -->
                   <v-text-field
                     class="font"
@@ -17,7 +27,7 @@
                     single-line
                     hide-details
                     v-model="searchQuery"
-                    @input="loadItems">
+                    >
                   </v-text-field>
                   <v-list>
                     <v-list-item 
@@ -214,10 +224,10 @@ export default {
         }
     },
     computed: {
-        filteredItems() {
-            return this.items.filter(item => item.nama.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-                item.kode.toLowerCase().includes(this.searchQuery.toLowerCase()));
-        },
+        // filteredItems() {
+        //     return this.items.filter(item => item.nama.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        //         item.kode.toLowerCase().includes(this.searchQuery.toLowerCase()));
+        // },
         filteredSuppliers() {
             return this.suppliers.filter(supplier => supplier.nama.toLowerCase().includes(this.searchSupplierQuery.toLowerCase()) ||
                 supplier.kode.toLowerCase().includes(this.searchSupplierQuery.toLowerCase()));
@@ -228,7 +238,7 @@ export default {
     },
     methods: {
        loadItems() {
-        loadItems(this.currentPage, this.pageSize, this.searchQuery)
+       return loadItems(this.currentPage, this.pageSize, this.searchQuery)
           .then(data => {
             this.items = data.items;
             this.totalItems = data.total
@@ -391,7 +401,15 @@ export default {
             this.receipt.email = supplier.email;
             this.showSupplierList = false;
         // console.log('Selected Supplier:', supplier);
-        }
+        },
+        searchItems() {
+          this.currentPage = 1;
+          this.loadItems().then(() => {
+            if (this.items.length === 0) {
+              alert('Tidak ada item yang ditemukan.');
+            }
+      });
+    }
         
     }
 };

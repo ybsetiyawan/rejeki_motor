@@ -10,14 +10,25 @@
               <span class="headline">Daftar Barang</span>
                 </v-card-title>
                 <v-card-text>
+                  <v-btn
+                    color="blue"
+                    elevation="8"
+                    @click="searchItems"
+                    :disabled="!searchQuery"
+                    class="font"
+                    x-small
+                    >
+                    <v-icon>mdi-magnify</v-icon>
+                  </v-btn>
                   <v-text-field
                     class="font"
                     label="Cari Berdasarkan Kode atau Nama Item"
                     single-line
                     hide-details
                     v-model="searchQuery"
-                    @input="loadItems">
+                    >
                   </v-text-field>
+                  
                   <v-list>
                     <v-list-item 
                       v-for="item in items" 
@@ -107,10 +118,15 @@
         </div>
         <div class="flex-item">
           <label for="quantity">Qty:</label>
-          <input type="number" id="quantity" min="1" v-model="receipt.quantity" required :disabled="!formActive" />
-        </div> <div class="flex-item">
+          <input type="number" id="quantity" min="1" v-model="receipt.quantity" :max="receipt.stok" required :disabled="!formActive" />
+        </div> 
+        <div class="flex-item">
+          <label for="quantity">Stok:</label>
+          <input type="number" id="stok" v-model="receipt.stok"  required disabled />
+        </div> 
+        <div class="flex-item">
           <label for="uom">Uom:</label>
-          <input type="text" id="uom" v-model="receipt.uom" required disabled />
+          <input type="text" id="uom" v-model="receipt.itemCode" required disabled />
         </div>
       </div>
       <div class="form-group">
@@ -226,7 +242,7 @@ export default {
     },
     methods: {
         loadItems() {
-        loadItems(this.currentPage, this.pageSize, this.searchQuery)
+        return loadItems(this.currentPage, this.pageSize, this.searchQuery)
           .then(data => {
             this.items = data.items;
             this.totalItems = data.total
@@ -360,6 +376,7 @@ export default {
             this.receipt.itemName = item.nama;
             this.receipt.itemCode = item.kode;
             this.receipt.uom = item.satuan_nama;
+            this.receipt.stok = item.stok;
             this.showItemList = false;
         },
         closeCustomerList() {
@@ -390,6 +407,14 @@ export default {
             this.receipt.email = supplier.email;
             this.showSupplierList = false;
         // console.log('Selected Supplier:', supplier);
+        },
+        searchItems() {
+          this.currentPage = 1;
+          this.loadItems().then(() => {
+            if (this.items.length === 0) {
+              alert('Tidak ada item yang ditemukan.');
+            }
+          });
         }
         
     }

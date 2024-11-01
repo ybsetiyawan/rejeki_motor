@@ -10,7 +10,7 @@
             <v-card-text ref="bpbContent">
               <div class="bpb-details">
                 <p class="center-bpb-code">RETUR SUPLLIER</p>
-                <p class="center-bpb-code">{{ receipt.kodeReceipt }}</p>
+                <p class="center-bpb-code">{{ receipt.kodeRetur }}</p>
                 <div class="flex-container">
                   <p><strong>Kode Supplier:</strong> {{ receipt.kodeSupplier }}</p>
                   <p class="right-details">{{ formatDate(receipt.tanggal) }}</p>

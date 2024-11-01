@@ -2,7 +2,7 @@
   <v-card flat>
     <v-card-text>
       <h3>Laporan Retur Supplier</h3>
-      <hr style="border-top: 1px solid #ccc; width: 100%; my-4;" />
+      <hr style="border-top: 1px solid #ccc; width: 100%;" />
       &nbsp;
       <v-row align="center">
         <v-col>

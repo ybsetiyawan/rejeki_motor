@@ -10,13 +10,23 @@
               <span class="headline">Daftar Barang</span>
                 </v-card-title>
                 <v-card-text>
+                  <v-btn
+                    color="blue"
+                    elevation="8"
+                    @click="searchItems"
+                    :disabled="!searchQuery"
+                    class="font"
+                    x-small
+                    >
+                    <v-icon>mdi-magnify</v-icon>
+                  </v-btn>
                   <v-text-field
                     class="font"
                     label="Cari Berdasarkan Kode atau Nama Item"
                     single-line
                     hide-details
                     v-model="searchQuery"
-                    @input="loadItems">
+                    >
                   </v-text-field>
                   <v-list>
                     <v-list-item 
@@ -241,7 +251,7 @@ export default {
     },
     methods: {
         loadItems() {
-        loadItems(this.currentPage, this.pageSize, this.searchQuery)
+        return loadItems(this.currentPage, this.pageSize, this.searchQuery)
           .then(data => {
             this.items = data.items;
             this.totalItems = data.total
@@ -404,6 +414,14 @@ export default {
           this.transaction.no_hp = customer.no_hp;
           this.transaction.alamat = customer.alamat;
           this.showCustomerList = false;
+        },
+        searchItems() {
+          this.currentPage = 1;
+          this.loadItems().then(() => {
+            if (this.items.length === 0) {
+              alert('Tidak ada item yang ditemukan.');
+            }
+          });
         }
     }
 };

@@ -9,10 +9,18 @@
         single-line
         hide-details
         v-model="search"
-        @input="loadItems"
       >
         <template v-slot:prepend-inner>
-          <v-icon>mdi-magnify</v-icon>
+          <v-btn
+          color="blue"
+          elevation="8"
+          @click="searchItems"
+          :disabled="!search"
+          class="font"
+          x-small
+           >
+            <v-icon size="19px">mdi-magnify</v-icon>
+          </v-btn>
         </template>
       </v-text-field>
     </v-card-title>
@@ -200,19 +208,21 @@ export default {
   },
   methods: {
     loadItems() {
-    api.get('/m_item', {
+      return api.get('/m_item', {
         params: {
-            page: this.currentPage,
-            pageSize: this.pageSize,
-            search: this.search, // Kirimkan filter pencarian
+          page: this.currentPage,
+          pageSize: this.pageSize,
+          search: this.search, // Kirimkan filter pencarian
         },
-    })
-    .then(response => {
+      })
+      .then(response => {
         this.items = response.data.items; // Data item
         this.totalItems = response.data.total; // Total item dari backend
-    })
-    .catch(error => console.error('Error loading items:', error));
-},
+      })
+      .catch(error => {
+        console.error('Error loading items:', error);
+      });
+    },
     loadJenisItems() {
       // axios.get('http://localhost:4000/m_jenis_item')
       api.get('/m_jenis_item')
@@ -350,6 +360,14 @@ export default {
     },
     isValidInteger(value) {
       return Number.isInteger(value);
+    },
+    searchItems() {
+      this.currentPage = 1;
+      this.loadItems().then(() => {
+        if (this.items.length === 0) {
+          alert('Tidak ada item yang ditemukan.');
+        }
+      });
     }
   }
 }
