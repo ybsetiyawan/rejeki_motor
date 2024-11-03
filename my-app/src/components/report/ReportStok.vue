@@ -196,7 +196,7 @@ export default {
         const worksheet = XLSX.utils.json_to_sheet(filteredItems); // Mengonversi data items yang sudah difilter ke worksheet
         const workbook = XLSX.utils.book_new(); // Membuat workbook baru
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Items'); // Menambahkan worksheet ke workbook
-        XLSX.writeFile(workbook, 'laporan_stok_barang ≤.xlsx'); // Menyimpan file Excel
+        XLSX.writeFile(workbook, 'laporan_stok_barang ≤ 5.xlsx'); // Menyimpan file Excel
       }).catch(error => console.error('Error Loading All Items:', error));
     },
 
