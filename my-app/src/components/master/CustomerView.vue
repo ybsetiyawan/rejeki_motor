@@ -1,7 +1,11 @@
 <template>
   <v-card>
-    <v-card-title class="font">
-      MASTER CUSTOMER
+    <v-card-title>
+      <v-btn text elevation="1">
+          <span>
+            MASTER CUSTOMER
+          </span>
+        </v-btn>
       <v-spacer></v-spacer>
       <v-text-field
         class="font"
@@ -16,8 +20,8 @@
       </v-text-field>
     </v-card-title>
     <!-- Tabel untuk Header -->
-    <v-simple-table class="font">
-      <thead>
+    <v-simple-table class="small-table">
+      <thead class="header-container">
         <tr class="font">
           <th class="text-left kode-customer column-width">KODE CUSTOMER</th>
           <th class="text-left nama-customer column-width">NAMA CUSTOMER</th>
@@ -26,12 +30,12 @@
           <th class="text-left no-hp column-width">NO HP</th>
           <th class="text-left action column-width">
             <v-btn
-              class="font"
+              small
+              class="mt-2"
               @click="openAddDialog">Tambah</v-btn>
           </th>
         </tr>
       </thead>
-    </v-simple-table>
     <!-- Dialog untuk Tambah Satuan -->
     <v-dialog v-model="dialog" persistent max-width="600px">
       <v-card>
@@ -64,15 +68,14 @@
       </v-card>
     </v-dialog>
     <!-- Tabel untuk Body dengan Scroll -->
-    <v-simple-table class="scrollable-table font">
-      <tbody>
+      <tbody class="cart-body">
         <tr v-for="customer in filteredCustomers" :key="customer.id">
-          <td class="text-left kode-customer column-width">{{ customer.kode }}</td>
-          <td class="text-left nama-customer column-width">{{ toUpperCase(customer.nama) }}</td>
-          <td class="text-left nomor-polisi column-width">{{ toUpperCase(customer.nopol) }}</td>
-          <td class="text-left alamat column-width">{{ toUpperCase(customer.alamat) }}</td>
-          <td class="text-left no-hp column-width">{{ customer.no_hp }}</td>
-          <td class="text-left action column-width">
+          <td>{{ customer.kode }}</td>
+          <td>{{ toUpperCase(customer.nama) }}</td>
+          <td>{{ toUpperCase(customer.nopol) }}</td>
+          <td>{{ toUpperCase(customer.alamat) }}</td>
+          <td>{{ customer.no_hp }}</td>
+          <td>
             <v-btn
               icon
               color="success"

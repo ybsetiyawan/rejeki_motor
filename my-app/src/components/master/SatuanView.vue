@@ -1,7 +1,11 @@
 <template>
   <v-card>
-    <v-card-title class="font">
-      MASTER SATUAN
+    <v-card-title>
+      <v-btn text elevation="1">
+          <span>
+            MASTER SATUAN
+          </span>
+        </v-btn>
       <v-spacer></v-spacer>
       <v-text-field
         class="font"
@@ -17,18 +21,18 @@
     </v-card-title>
     <!-- Tabel untuk Header -->
     <v-simple-table class="font">
-      <thead>
+      <thead class="header-container">
         <tr>
           <th class="text-left id-satuan">ID</th>
           <th class="text-left nama-satuan">NAMA</th>
           <th class="text-left nama-satuan">
             <v-btn
-              class="font"
+              small
+              class="mt-1"
               @click="openAddDialog">Tambah</v-btn>
           </th>
         </tr>
       </thead>
-    </v-simple-table>
     <!-- Dialog untuk Tambah Satuan -->
     <v-dialog v-model="dialog" persistent max-width="600px">
       <v-card>
@@ -52,8 +56,7 @@
       </v-card>
     </v-dialog>
     <!-- Tabel untuk Body dengan Scroll -->
-    <v-simple-table class="scrollable-table font">
-      <tbody>
+      <tbody class="cart-body">
         <tr v-for="satuan in filteredSatuans" :key="satuan.id">
           <td class="id-satuan">{{ satuan.id }}</td>
           <td class="nama-satuan">{{ toUpperCase(satuan.nama) }}</td>

@@ -212,4 +212,25 @@ export default {
   overflow: hidden; /* Menyembunyikan teks yang keluar dari area footer */
 }
 
+.header-container th{
+    height: 20px !important;
+    font-size: 12px !important;
+    font-weight: bold !important; 
+    color: rgb(247, 116, 116) !important;
+    padding-bottom: 5px !important; /* menambahkan jarak antara header dan body table */
+  }
+
+  .cart-body td{
+    height: 27px !important;
+    font-size: 11px !important;
+    /* font-weight: bold !important; */
+  }
+
+  .cart-body{
+    max-height: 485px;
+    /* Adjust the height as needed */
+    overflow-y: auto;
+
+  }
+
 </style>

@@ -1,7 +1,11 @@
 <template>
   <v-card>
-    <v-card-title class="font">
-      MASTER SUPPLIER
+    <v-card-title>
+      <v-btn text elevation="1">
+          <span>
+            MASTER SUPPLIER
+          </span>
+        </v-btn>
       <v-spacer></v-spacer>
       <v-text-field
         class="font"
@@ -17,21 +21,21 @@
     </v-card-title>
     <!-- Tabel untuk Header -->
     <v-simple-table class="font">
-      <thead>
+      <thead class="header-container">
         <tr class="font">
-          <th class="text-left kode-customer column-width">KODE SUPPLIER</th>
-          <th class="text-left nama-customer column-width">NAMA SUPPLIER</th>
+          <th class="text-left kode-customer column-width">KODE</th>
+          <th class="text-left nama-customer column-width">NAMA</th>
           <th class="text-left alamat column-width">ALAMAT</th>
           <th class="text-left no-hp column-width">NO HP</th>
           <th class="text-left nomor-polisi column-width">EMAIL</th>
           <th class="text-left action column-width">
             <v-btn
-              class="font"
+              small
+              class="mt-1"
               @click="openAddDialog">Tambah</v-btn>
           </th>
         </tr>
       </thead>
-    </v-simple-table>
     <!-- Dialog untuk Tambah Satuan -->
     <v-dialog v-model="dialog" persistent max-width="600px">
       <v-card>
@@ -64,8 +68,7 @@
       </v-card>
     </v-dialog>
     <!-- Tabel untuk Body dengan Scroll -->
-    <v-simple-table class="scrollable-table font">
-      <tbody>
+      <tbody class="cart-body">
         <tr v-for="supplier in filteredSuppliers" :key="supplier.id">
           <td class="text-left kode-customer column-width">{{ supplier.kode }}</td>
           <td class="text-left nama-customer column-width">{{ toUpperCase(supplier.nama) }}</td>

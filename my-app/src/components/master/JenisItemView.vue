@@ -1,7 +1,11 @@
 <template>
   <v-card>
-    <v-card-title class="font">
-      MASTER JENIS ITEM
+    <v-card-title>
+      <v-btn text elevation="1">
+          <span>
+            MASTER JENIS ITEM
+          </span>
+        </v-btn>
       <v-spacer></v-spacer>
       <v-text-field
         class="font"
@@ -18,18 +22,18 @@
     
     <!-- Tabel untuk Header -->
     <v-simple-table class="font">
-      <thead>
+      <thead class="header-container">
         <tr>
-          <th class="text-left kode-jenis">KODE JENIS ITEM</th>
-          <th class="text-left nama-jenis">NAMA JENIS ITEM</th>
+          <th class="text-left kode-jenis">KODE</th>
+          <th class="text-left nama-jenis">NAMA</th>
           <th class="text-left nama-jenis">
             <v-btn
-              class="font"
+              small
+              class="mt-1"
               @click="openAddDialog">Tambah</v-btn>
           </th>
         </tr>
       </thead>
-    </v-simple-table>
      <!-- Dialog untuk Tambah Satuan -->
      <v-dialog v-model="dialog" persistent max-width="600px">
       <v-card>
@@ -54,8 +58,7 @@
       </v-card>
     </v-dialog>
     <!-- Tabel untuk Body dengan Scroll -->
-    <v-simple-table class="scrollable-table font">
-      <tbody>
+      <tbody class="cart-body">
         <tr v-for="jenis in filteredJeniss" :key="jenis.id">
           <td class="kode-jenis">{{ toUpperCase(jenis.kode) }}</td>
           <td class="nama-jenis">{{ toUpperCase(jenis.nama) }}</td>

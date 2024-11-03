@@ -1,5 +1,5 @@
 <template>
-  <v-card style="height: 670px">
+  <v-card>
       <v-card-title>
         <v-btn text elevation="1">
           <span>
@@ -49,7 +49,7 @@
                     elevation="8"
                     @click="searchItems"
                     :disabled="!searchQuery"
-                    class="font mb-1"
+                    class="mb-1"
                     x-small
                     >
                     <v-icon>mdi-magnify</v-icon>
@@ -229,7 +229,5 @@ export default {
     overflow-y: auto;
 
   }
-.custom-pagination {
-}
  
 </style>

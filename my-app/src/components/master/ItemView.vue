@@ -1,7 +1,11 @@
 <template>
   <v-card>
-    <v-card-title class="font">
-      MASTER ITEM
+    <v-card-title>
+      <v-btn text elevation="1">
+          <span>
+            MASTER ITEM
+          </span>
+        </v-btn>
       <v-spacer></v-spacer>
       <v-text-field
         class="font"
@@ -25,9 +29,9 @@
       </v-text-field>
     </v-card-title>
     <!-- Tabel untuk Header -->
-    <v-simple-table class="font">
-      <thead>
-        <tr>
+    <v-simple-table class="small-table">
+      <thead class="header-container">
+        <tr class="font">
           <th class="text-left column-width">KODE ITEM</th>
           <th class="text-left column-width">NAMA ITEM</th>
           <th class="text-left column-width">JENIS ITEM</th>
@@ -37,12 +41,12 @@
           <th class="text-left column-width uom-column">UOM</th>
           <th class="text-right column-width">
             <v-btn
-              class="font"
+              small
+              class="mt-1"
               @click="openAddDialog">Tambah</v-btn>
           </th>
         </tr>
       </thead>
-    </v-simple-table>
     <!-- Dialog untuk Tambah Satuan -->
     <v-dialog v-model="dialog" persistent max-width="400px">
       <v-card>
@@ -126,8 +130,7 @@
     </v-dialog>
    
     <!-- Tabel untuk Body dengan Scroll -->
-    <v-simple-table class="scrollable-table font">
-      <tbody>
+      <tbody class="cart-body">
         <tr v-for="item in items" :key="item.id">
           <td class="text-left column-width">{{ toUpperCase(item.kode) }}</td>
           <td class="text-left column-width">{{ toUpperCase(item.nama) }}</td>
@@ -183,7 +186,7 @@ export default {
       satuanItems: [], // Data untuk satuan
       valid: true,
       currentPage: 1,
-      pageSize: 10,
+      pageSize: 12,
       totalItems: 0, 
       formatHarga,
       toUpperCase,
@@ -390,5 +393,6 @@ export default {
   padding: 3px; /* Adjust padding to reduce size */
   font-family: calibri;
 }
+
 
 </style>

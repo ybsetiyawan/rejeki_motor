@@ -1,26 +1,30 @@
 <template>
   <v-card>
-    <v-card-title class="font">
-      MASTER USER
+    <v-card-title>
+      <v-btn text elevation="1">
+          <span>
+            MASTER USER
+          </span>
+        </v-btn>
       <v-spacer></v-spacer>
 
     </v-card-title>
     <!-- Tabel untuk Header -->
     <v-simple-table class="font">
-      <thead>
+      <thead class="header-container">
         <tr>
-          <th style="width: 20%;">NAMA USER</th>
-          <th style="width: 20%;">USERNAME</th>
-          <th style="width: 20%;">PASSWORD</th>
-          <th style="width: 20%;">RULES</th>
-          <th style="width: 20%;" class="text-right">
+          <th>NAMA USER</th>
+          <th>USERNAME</th>
+          <th>PASSWORD</th>
+          <th>RULES</th>
+          <th>
             <v-btn
-              class="font"
+              small
+              class="mt-1"
               @click="openAddDialog">Tambah</v-btn>
           </th>
         </tr>
       </thead>
-    </v-simple-table>
     <!-- Dialog untuk Tambah Satuan -->
     <v-dialog v-model="dialog" persistent max-width="400px">
       <v-card>
@@ -76,14 +80,13 @@
     </v-dialog>
    
     <!-- Tabel untuk Body dengan Scroll -->
-    <v-simple-table class="scrollable-table font">
-      <tbody>
+      <tbody class="cart-body">
         <tr v-for="user in users" :key="user.id">
-          <td style="width: 20%;">{{ toUpperCase(user.pegawai) }}</td>
-          <td style="width: 20%;">{{ (user.username) }}</td>
-          <td style="width: 20%;">{{ maskedPassword(user.password) }}</td>
-          <td style="width: 20%;">{{ toUpperCase(user.role_nama) }}</td>
-          <td style="width: 20%;" class="text-right">
+          <td>{{ toUpperCase(user.pegawai) }}</td>
+          <td>{{ (user.username) }}</td>
+          <td>{{ maskedPassword(user.password) }}</td>
+          <td>{{ toUpperCase(user.role_nama) }}</td>
+          <td>
             <v-btn
               icon
               color="success"
