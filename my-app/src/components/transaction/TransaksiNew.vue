@@ -161,8 +161,9 @@
           <tr v-for="(item, index) in cart" :key="index">
             <td>{{ item.kode }}</td>
             <td>{{ item.nama }}</td>
-            <td>{{ item.modal }}</td>
+            <!-- <td>{{ item.modal }}</td> -->
             <!-- <td contenteditable="true" class="warning">{{ item.hpp }}</td> -->
+            <td contenteditable="true" @input="updateModal(index, $event)" class="info">{{ item.modal }}</td> <!-- Make hpp editable -->
             <td contenteditable="true" @input="updateHpp(index, $event)" class="warning">{{ item.hpp }}</td> <!-- Make hpp editable -->
             <td>{{ item.uom }}</td>
             <td>{{ item.qty }}</td>
@@ -271,7 +272,14 @@ export default {
       const newValue = event.target.innerText.trim();
       // console.log(`Updating hpp for item at index ${index} to ${newValue}`);
       this.cart[index].hpp = newValue;
-  },
+      },
+
+      updateModal(index, event) {
+      const newValue = event.target.innerText.trim();
+      // console.log(`Updating hpp for item at index ${index} to ${newValue}`);
+      this.cart[index].modal = newValue;
+      },
+      
        loadItems() {
        return loadItems(this.currentPage, this.pageSize, this.searchQuery)
           .then(data => {
