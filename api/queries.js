@@ -7,6 +7,7 @@ const pool = new Pool({
     password: 'pakepake',
     port: 5432,
 });
+const bcrypt = require('bcrypt');
 
 //m_customer
 const get_m_customer = (request, response) => {
@@ -347,10 +348,27 @@ const add_m_user = (request, response) => {
     const username = request.body.username;
     const password = request.body.password;
     const id_role = request.body.id_role;
-    pool.query('INSERT INTO m_user (pegawai,username,password,id_role) VALUES ($1,$2,$3,$4)', [pegawai,username,password,id_role], (err, result) => {
-        response.status(201).json({message: 'Data berhasil ditambahkan'});
-    });
-}
+
+    // Generate salt untuk bcrypt (semakin tinggi saltRounds, semakin aman, tapi semakin lambat)
+    const saltRounds = 10; // Nilai yang direkomendasikan
+
+    bcrypt.hash(password, saltRounds, (err, hash) => {
+        if (err) {
+            console.error("Error hashing password:", err);
+            return response.status(500).json({ message: 'Gagal mengenkripsi password' }); // Handle error
+        }
+
+    
+        // Gunakan hash yang sudah dienkripsi untuk disimpan di database
+        pool.query('INSERT INTO m_user (pegawai, username, password, id_role) VALUES ($1, $2, $3, $4)', [pegawai, username, hash, id_role], (err, result) => {
+            if (err) {
+                console.error("Error inserting data:", err);
+                return response.status(500).json({ message: 'Gagal menambahkan data user' }); // Handle error
+            }
+            response.status(201).json({ message: 'Data berhasil ditambahkan' });
+            });
+        });
+    };
 
 const update_m_user = (request, response) => {
     const id = request.params.id;
@@ -358,10 +376,25 @@ const update_m_user = (request, response) => {
     const username = request.body.username;
     const password = request.body.password;
     const id_role = request.body.id_role;
-    pool.query('UPDATE m_user SET pegawai = $1, username = $2, password = $3, id_role = $4 WHERE id = $5', [pegawai,username,password,id_role,id], (err, result) => {
-        response.status(200).json({message: 'Data berhasil diubah'});
-    });
-}
+
+    const saltRounds = 10; // Nilai yang direkomendasikan
+
+    bcrypt.hash(password, saltRounds, (err, hash) => {
+        if (err) {
+            console.error("Error hashing password:", err);
+            return response.status(500).json({ message: 'Gagal mengenkripsi password' }); // Handle error
+        }
+
+
+    pool.query('UPDATE m_user SET pegawai = $1, username = $2, password = $3, id_role = $4 WHERE id = $5', [pegawai,username,hash,id_role,id], (err, result) => {
+        if (err) {
+            console.error("Error inserting data:", err);
+            return response.status(500).json({ message: 'Gagal update data user' }); // Handle error
+        }
+        response.status(201).json({ message: 'Data berhasil diupdate' });
+            });
+        });
+    }
 
 const delete_m_user = (request, response) => {
     const id = request.params.id;
@@ -397,29 +430,54 @@ const add_m_role = (request, response) => {
 const login = (request, response) => {
     const username = request.body.username;
     const password = request.body.password;
-    pool.query('SELECT * FROM m_user WHERE username = $1 AND password = $2', [username, password], (err, result) => {
-        if (result.rows.length === 1) {
-            const user = result.rows[0];
-            response.status(200).json({
-                status: 'success',
-                message: 'Login berhasil',
-                data: {
-                    user_id: user.id,
-                    pegawai: user.pegawai,
-                    username: user.username,
-                    id_role: user.id_role,
-                  },
+
+    pool.query('SELECT * FROM m_user WHERE username = $1', [username], (err, result) => {
+        if (err) {
+            console.error("Error querying user:", err);
+            return response.status(500).json({
+                status: 'error',
+                message: 'Terjadi kesalahan saat login'
             });
         }
-        else{
-            response.status(401).json({
+
+        if (result.rows.length === 1) {
+            const user = result.rows[0];
+
+            bcrypt.compare(password, user.password, (err, res) => {
+                if (err) {
+                    console.error("Error comparing passwords:", err);
+                    return response.status(500).json({
+                        status: 'error',
+                        message: 'Terjadi kesalahan saat login'
+                    });
+                }
+
+                if (res === true) {
+                    return response.status(200).json({
+                        status: 'success',
+                        message: 'Login berhasil',
+                        data: {
+                            user_id: user.id,
+                            pegawai: user.pegawai,
+                            username: user.username,
+                            id_role: user.id_role,
+                        },
+                    });
+                } else {
+                    return response.status(401).json({
+                        status: 'error',
+                        message: 'Password salah' // Pesan error hanya "Password salah"
+                    });
+                }
+            });
+        } else {
+            return response.status(401).json({
                 status: 'error',
-                message: 'Username atau password salah',
-                data: result.rows[0]
+                message: 'Username tidak ditemukan' // Pesan error hanya "Username tidak ditemukan"
             });
         }
     });
-}
+};
 // transaksi penjualan
 const save_transaksi = async (req, res) => {
     try {

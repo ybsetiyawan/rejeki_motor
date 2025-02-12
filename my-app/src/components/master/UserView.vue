@@ -15,7 +15,7 @@
         <tr>
           <th>NAMA USER</th>
           <th>USERNAME</th>
-          <th>PASSWORD</th>
+          <!-- <th>PASSWORD</th> -->
           <th>RULES</th>
           <th>
             <v-btn
@@ -84,7 +84,7 @@
         <tr v-for="user in users" :key="user.id">
           <td>{{ toUpperCase(user.pegawai) }}</td>
           <td>{{ (user.username) }}</td>
-          <td>{{ maskedPassword(user.password) }}</td>
+          <!-- <td>{{ maskedPassword(user.password) }}</td> -->
           <td>{{ toUpperCase(user.role_nama) }}</td>
           <td>
             <v-btn
