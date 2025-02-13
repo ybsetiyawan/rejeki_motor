@@ -154,6 +154,7 @@
             <th>Hjl</th>
             <th>Uom</th>
             <th>Qty</th>
+            <th>Total</th>
             <th class="delete-column"></th>
           </tr>
         </thead>
@@ -163,10 +164,11 @@
             <td>{{ item.nama }}</td>
             <!-- <td>{{ item.modal }}</td> -->
             <!-- <td contenteditable="true" class="warning">{{ item.hpp }}</td> -->
-            <td contenteditable="true" @input="updateModal(index, $event)" class="info">{{ item.modal }}</td> <!-- Make hpp editable -->
-            <td contenteditable="true" @input="updateHpp(index, $event)" class="warning">{{ item.hpp }}</td> <!-- Make hpp editable -->
+            <td contenteditable="true" @input="updateModal(index, $event)" class="info">{{ formatHarga(item.modal) }}</td> <!-- Make hpp editable -->
+            <td contenteditable="true" @input="updateHpp(index, $event)" class="warning">{{ formatHarga(item.hpp) }}</td> <!-- Make hpp editable -->
             <td>{{ item.uom }}</td>
             <td>{{ item.qty }}</td>
+            <td>{{ formatHarga(item.qty * item.hpp) }}</td>
             <td>
               <v-icon 
                 @click="removeFromCart(index)"
@@ -174,6 +176,12 @@
                 size="15px"
               >mdi-delete</v-icon>
             </td>
+          </tr>
+          <tr style="height: 10px;"></tr> <!-- Tambahkan baris kosong untuk jarak -->
+          <tr>
+            <td colspan="6" style="text-align: left;"><strong>Subtotal</strong></td>
+            <td>{{ formatHarga(subtotal) }}</td>
+            <td></td>
           </tr>
         </tbody>
       </v-simple-table>
@@ -264,9 +272,13 @@ export default {
         },
         pageCount() {
         return Math.ceil(this.totalItems / this.pageSize);
-    }
+        },
+        subtotal() {
+          return this.cart.reduce((acc, item) => acc + (item.qty * item.hpp), 0);
+        }
     },
     methods: {
+      
       // hpp adalah harga jual ke customer
       updateHpp(index, event) {
       const newValue = event.target.innerText.trim();
@@ -308,7 +320,7 @@ export default {
           }
             if (this.formActive) {
                 this.cart.push({ ...this.item,
-                  hpp: 0
+                  hpp: this.item.hpp
                  });
              
                 this.item = {
@@ -472,14 +484,14 @@ export default {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  padding: 35px;
+  padding: 10px;
   height: 85vh;
 }
 
 .receipt-form, .cart {
   flex: 1;
   max-width: 50%;
-  margin-top: -20px;
+  margin-top: -10px;
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -682,7 +694,7 @@ h4{
 .small-table thead th {
   height: 30px !important; /* Set a specific height */
   border-bottom: 2px solid #ddd;
-  font-size: 15px !important;
+  font-size: 13px !important;
 }
 
 /* Style for table body */
@@ -719,14 +731,14 @@ h4{
   
 }
 .cart-body td{
-  height: 28px !important;
-  font-size: 11px !important;
+  height: 40px !important;
+  font-size: 12px !important;
   font-weight: bold !important;
 }
 
 
 .cart-body td {
-  font-size: 0.9em;
+  font-size: 0.5em;
 }
 
 .disabled-icon {
@@ -736,4 +748,6 @@ h4{
 .customer-text {
   font-size: 1.0em; /* Ukuran font lebih kecil */
 }
+
+
 </style>
