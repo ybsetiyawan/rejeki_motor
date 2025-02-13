@@ -37,7 +37,7 @@
                       :disabled="isItemIncart(item)"
                       >
                       <v-list-item-content>
-                        <v-list-item-title class="customer-text">{{ item.kode + ' - ' + item.nama + ' - ' + item.modal }}</v-list-item-title>
+                        <v-list-item-title class="customer-text">{{ item.kode + ' - ' + item.nama + ' - ' + item.modal + ' - ' + parseInt(item.stok) }}</v-list-item-title>
                       </v-list-item-content>
                     </v-list-item>
                   </v-list>

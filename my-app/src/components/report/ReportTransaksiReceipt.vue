@@ -1,7 +1,7 @@
 <template>
   <v-card flat>
     <v-card-text>
-      <h3>Laporan Pengeluaran Barang</h3>
+      <h3>Laporan Penerimaan Barang</h3>
       <hr style="border-top: 1px solid #ccc; width: 100%; " />
       &nbsp;
       <v-row align="center">

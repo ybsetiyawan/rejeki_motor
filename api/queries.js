@@ -243,7 +243,6 @@ const delete_m_jenis_item = (request, response) => {
         });
     });
 };
-
 const get_all_item = (request, response) => {
     const page = parseInt(request.query.page) || 1;
     const pageSize = parseInt(request.query.pageSize) || 10;
@@ -271,6 +270,7 @@ const get_all_item = (request, response) => {
             JOIN m_jenis_item ON m_item.id_jenis_item = m_jenis_item.id
             JOIN m_satuan ON m_item.id_satuan = m_satuan.id
             WHERE m_item.kode ILIKE $1 OR m_item.nama ILIKE $1
+            ORDER BY CAST(m_item.kode AS INTEGER)
             LIMIT $2 OFFSET $3
         `;
         const offset = (page - 1) * pageSize;
@@ -297,18 +297,42 @@ const get_item_min5 = (request, response) => {
 
 
 
+// const add_m_item = (request, response) => {
+//     const kode = request.body.kode;
+//     const nama = request.body.nama;
+//     const id_satuan = request.body.id_satuan;
+//     const id_jenis_item = request.body.id_jenis_item;
+//     const hpp = request.body.hpp;
+//     const stok = request.body.stok;
+//     const modal = request.body.modal;
+//     pool.query('INSERT INTO m_item (kode, nama, hpp, stok, id_satuan, id_jenis_item, modal) VALUES ($1,$2,$3,$4,$5,$6,$7)', [kode, nama, hpp, stok,id_satuan, id_jenis_item, modal], (err, result) => {
+//         response.status(201).json({message: 'Data berhasil ditambahkan'});
+//     });
+// }
+
 const add_m_item = (request, response) => {
-    const kode = request.body.kode;
-    const nama = request.body.nama;
-    const id_satuan = request.body.id_satuan;
-    const id_jenis_item = request.body.id_jenis_item;
-    const hpp = request.body.hpp;
-    const stok = request.body.stok;
-    const modal = request.body.modal;
-    pool.query('INSERT INTO m_item (kode, nama, hpp, stok, id_satuan, id_jenis_item, modal) VALUES ($1,$2,$3,$4,$5,$6,$7)', [kode, nama, hpp, stok,id_satuan, id_jenis_item, modal], (err, result) => {
-        response.status(201).json({message: 'Data berhasil ditambahkan'});
+    // Query untuk mengambil kode terakhir dari database
+    pool.query('SELECT MAX(CAST(kode AS INTEGER)) AS kodeTerakhir FROM m_item', (err, result) => {
+        if (err) {
+            return response.status(500).json({ message: 'Error in retrieving data' });
+        }
+
+        let kodeTerakhir = result.rows[0]?.kodeterakhir || '1000'; // Nilai default jika tidak ada data
+        let newKode = (parseInt(kodeTerakhir, 10) + 1).toString().padStart(4, '0'); // Tambahkan +1 dan format dengan 4 digit
+
+        const { nama, id_satuan, id_jenis_item, hpp, stok, modal } = request.body;
+        pool.query('INSERT INTO m_item (kode, nama, hpp, stok, id_satuan, id_jenis_item, modal) VALUES ($1,$2,$3,$4,$5,$6,$7)', 
+        [newKode, nama, hpp, stok, id_satuan, id_jenis_item, modal], (err, result) => {
+            if (err) {
+                return response.status(500).json({ message: 'Error in inserting data' });
+            }
+            response.status(201).json({ message: 'Data berhasil ditambahkan' });
+        });
     });
 }
+
+
+
 
 const update_m_item = (request, response) => {
     const id = request.params.id;

@@ -34,3 +34,5 @@ coverage/
 
 # Mengabaikan file .zip
 *.zip
+
+*api.js

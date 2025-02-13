@@ -78,7 +78,9 @@
     <!-- Footer -->
     <v-footer color="#ea3a3a" app class="footer-small">
       <div class="scrolling-text">
-        <span class="white--text">&copy; 2024 Rejeki Motor. | Aplikasi Inventory Sederhana | by YBS </span>
+        <span class="white--text">&copy; 2025 Rejeki Motor. | Aplikasi Inventory Sederhana by
+          <v-icon>mdi-transfer-right</v-icon> 
+          <v-icon>mdi-keyboard</v-icon> ybsDev </span>
       </div>
     </v-footer>
   </v-app>

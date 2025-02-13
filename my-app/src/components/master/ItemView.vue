@@ -58,9 +58,9 @@
                 <v-text-field
                   label="Kode Item"
                   v-model="newItem.kode"
-                  :disabled="isEditing"
                   required
                   dense
+                  disabled
                 ></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
@@ -102,7 +102,7 @@
                 <v-text-field
                   label="Stok"
                   v-model="newItem.stok"
-                  :disabled="isEditing"
+                  disabled
                   required
                   dense
                 ></v-text-field>
@@ -243,19 +243,19 @@ export default {
         .catch(error => console.error('Error loading satuan items:', error));
     },
     addItem(){
-      if(!this.newItem.kode || !this.newItem.nama || !this.newItem.stok || !this.newItem.hpp|| !this.newItem.modal){
+      if(!this.newItem.nama || !this.newItem.hpp|| !this.newItem.modal){
         alert('Ada data yang kosong, Silahkan isi data dengan benar');
         return;
       }
-      this.newItem.kode = this.newItem.kode.toUpperCase();
+      // this.newItem.kode = this.newItem.kode.toUpperCase();
       this.newItem.nama = this.newItem.nama.toUpperCase();
-      if (!isUnique(this.items, 'kode', this.newItem.kode) || !isUnique(this.items, 'nama', this.newItem.nama)) {
-        alert('Kode Item atau nama sudah digunakan, Silahkan gunakan Kode lain');
+      if (!isUnique(this.items, 'nama', this.newItem.nama)) {
+        alert('nama sudah digunakan, Silahkan gunakan lain');
         return;
       }
-      toUpperCaseFields(this.newItem, ['kode', 'nama']);
-      if (!isUnique(this.items, 'kode', this.newItem.kode)) {
-        alert('Kode Item sudah digunakan, Silahkan gunakan Kode lain');
+      toUpperCaseFields(this.newItem, ['nama']);
+      if (!isUnique(this.items, 'nama', this.newItem.nama)) {
+        alert('nama Item sudah digunakan, Silahkan gunakan lain');
         return;
       }
       
@@ -264,12 +264,12 @@ export default {
       // console.log('Adding new item'); // Log saat tambah baru
       // axios.post('http://localhost:4000/m_item', {
       api.post('/m_item', {
-        kode: this.newItem.kode,
+        // kode: this.newItem.kode,
         nama: this.newItem.nama,
         id_jenis_item: this.newItem.jenis_item_id,  // Pastikan hanya ID yang dikirim
         modal: this.newItem.modal,
         hpp: this.newItem.hpp,
-        stok: this.newItem.stok,
+        stok: 0,
         id_satuan: this.newItem.satuan_id  // Pastikan hanya ID yang dikirim
       })
       .then(response => {
@@ -299,7 +299,7 @@ export default {
 
 
     updateItem() {
-      if (!this.newItem.nama || !this.newItem.kode || !this.newItem.hpp || !this.newItem.stok || !this.newItem.modal
+      if (!this.newItem.nama || !this.newItem.kode || !this.newItem.hpp || !this.newItem.modal
         || !this.newItem.jenis_item_id || !this.newItem.satuan_id) {
         alert('Ada data yang kosong, Silahkan isi data dengan benar');
         return;
@@ -332,7 +332,7 @@ export default {
     },
     addOrUpdateItem(){
       // Validasi nilai hpp dan stok harus integer
-      if (!this.isValidInteger(Number(this.newItem.hpp)) || !this.isValidInteger(Number(this.newItem.stok)) 
+      if (!this.isValidInteger(Number(this.newItem.hpp))
       || !this.isValidInteger(Number(this.newItem.modal))) {
         alert('HPP dan Modal harus berupa angka bulat.');
         return;
