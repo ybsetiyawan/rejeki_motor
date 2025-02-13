@@ -247,15 +247,15 @@ export default {
         alert('Ada data yang kosong, Silahkan isi data dengan benar');
         return;
       }
-      // this.newItem.kode = this.newItem.kode.toUpperCase();
       this.newItem.nama = this.newItem.nama.toUpperCase();
-      if (!isUnique(this.items, 'nama', this.newItem.nama)) {
-        alert('nama sudah digunakan, Silahkan gunakan lain');
+      // this.newItem.kode = this.newItem.kode.toUpperCase();
+      if (!isUnique(this.items, 'kode', this.newItem.kode)) {
+        alert('kode sudah digunakan, Silahkan gunakan lain');
         return;
       }
-      toUpperCaseFields(this.newItem, ['nama']);
-      if (!isUnique(this.items, 'nama', this.newItem.nama)) {
-        alert('nama Item sudah digunakan, Silahkan gunakan lain');
+      toUpperCaseFields(this.newItem, ['kode']);
+      if (!isUnique(this.items, 'kode', this.newItem.kode)) {
+        alert('kode Item sudah digunakan, Silahkan gunakan lain');
         return;
       }
       
