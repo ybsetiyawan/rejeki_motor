@@ -144,14 +144,14 @@
               icon
               color="success"
               size="small"
-              class="font" @click="editItem(item.item_id)">
+              class="font" @click="editItem(item.id)">
               <v-icon>mdi-pencil-box</v-icon>
             </v-btn>
             <v-btn
               icon
               color="error"
               size="small"
-              class="font" @click="deleteItem(item.item_id)">
+              class="font" @click="deleteItem(item.id)">
               <v-icon>mdi-delete</v-icon>
             </v-btn>
           </td>
@@ -293,20 +293,31 @@ export default {
 
     editItem(id){
       this.isEditing = true;
-      this.newItem = {...this.items.find(item => item.item_id === id)};
+      this.newItem = {...this.items.find(item => item.id === id)};
       this.dialog = true;
     },
 
 
     updateItem() {
-      if (!this.newItem.nama || !this.newItem.kode || !this.newItem.hpp || !this.newItem.modal
+      if (!this.newItem.nama || !this.newItem.hpp || !this.newItem.modal
         || !this.newItem.jenis_item_id || !this.newItem.satuan_id) {
         alert('Ada data yang kosong, Silahkan isi data dengan benar');
         return;
       }
+     
       toUpperCaseFields(this.newItem, ['kode', 'nama']);
+      console.log('Updating item with data:', {
+        kode: this.newItem.kode,
+        nama: this.newItem.nama,
+        id_jenis_item: this.newItem.jenis_item_id,
+        modal: this.newItem.modal,
+        hpp: this.newItem.hpp,
+        stok: this.newItem.stok,
+        id_satuan: this.newItem.satuan_id
+      });
+      
       // axios.put(`http://localhost:4000/m_item/${this.newItem.item_id}`, {
-      api.put(`/m_item/${this.newItem.item_id}`, {
+      api.put(`/m_item/${this.newItem.id}`, {
         kode: this.newItem.kode,
         nama: this.newItem.nama,
         id_jenis_item: this.newItem.jenis_item_id,  // Pastikan hanya ID yang dikirim
@@ -344,12 +355,12 @@ export default {
         this.addItem();
       }
     },
-    deleteItem(item_id){
+    deleteItem(id){
       if(confirm('Apakah Anda yakin ingin menghapus item ini?')){
       // axios.delete(`http://localhost:4000/m_item/${item_id}`)
-      api.delete(`/m_item/${item_id}`)
+      api.delete(`/m_item/${id}`)
       .then(() => {
-        this.items = this.items.filter(item => item.item_id !== item_id);
+        this.items = this.items.filter(item => item.id !== id);
         alert('Data berhasil dihapus');
       })
       .catch(error => {
