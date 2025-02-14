@@ -306,15 +306,15 @@ export default {
       }
      
       toUpperCaseFields(this.newItem, ['kode', 'nama']);
-      console.log('Updating item with data:', {
-        kode: this.newItem.kode,
-        nama: this.newItem.nama,
-        id_jenis_item: this.newItem.jenis_item_id,
-        modal: this.newItem.modal,
-        hpp: this.newItem.hpp,
-        stok: this.newItem.stok,
-        id_satuan: this.newItem.satuan_id
-      });
+      // console.log('Updating item with data:', {
+      //   kode: this.newItem.kode,
+      //   nama: this.newItem.nama,
+      //   id_jenis_item: this.newItem.jenis_item_id,
+      //   modal: this.newItem.modal,
+      //   hpp: this.newItem.hpp,
+      //   stok: this.newItem.stok,
+      //   id_satuan: this.newItem.satuan_id
+      // });
       
       // axios.put(`http://localhost:4000/m_item/${this.newItem.item_id}`, {
       api.put(`/m_item/${this.newItem.id}`, {

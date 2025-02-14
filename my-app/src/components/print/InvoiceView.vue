@@ -123,6 +123,11 @@
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 1);
 }
 
+.invoice-details {
+  font-family: 'NamaFontBaru', sans-serif;
+  font-size: 14px;
+}
+
 .invoice-details p {
   margin: 5px 0;
 }
@@ -137,6 +142,7 @@
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
+  font-size: 0.80;
 }
 
 .invoice-table th {
@@ -146,13 +152,12 @@
 
 .total {
   font-weight: bold;
-  margin-top: 20px;
-  color: rgb(118, 115, 115);
+  margin-top: 15px;
+  color: rgb(53, 51, 51);
   text-align: right;
-  font-size: 1em;
+  font-size: 0.95em;
   border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 10px;
+  padding: 5px;
   width: 100%; /* Make the total div the same width as the table */
   box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
@@ -160,7 +165,6 @@
 .center-invoice-code {
   text-align: center !important;
   width: 100%;
-  font-size: 1.2em;
   font-weight: bold;
   margin: 0;
 }
@@ -182,17 +186,17 @@
 
 @media print {
   @page {
-    size: 21.59cm 14.00cm;
-    margin: 1cm; /* Add margin to avoid content touching the edges */
+    size: 21.0cm 29.7cm !important; /* Ukuran A4 */
+    margin: 1cm !important; /* Add margin to avoid content touching the edges */
   }
   body {
     margin: 0;
-    transform: scale(0.6); /* Adjust the scale as needed */
+    transform: scale(1); /* Ensure no scaling is applied */
     transform-origin: top left;
   }
   .invoice-container {
     width: 100%;
-    transform: scale(0.6); /* Adjust the scale as needed */
+    transform: scale(1); /* Ensure no scaling is applied */
     transform-origin: top left;
   }
 }

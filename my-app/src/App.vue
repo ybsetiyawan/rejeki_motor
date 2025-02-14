@@ -78,9 +78,10 @@
     <!-- Footer -->
     <v-footer color="#ea3a3a" app class="footer-small">
       <div class="scrolling-text">
-        <span class="white--text">&copy; 2025 Rejeki Motor. | Aplikasi Inventory Sederhana by
-          <v-icon>mdi-transfer-right</v-icon> 
-          <v-icon>mdi-keyboard</v-icon> ybsDev </span>
+        <v-icon small>mdi-monitor-multiple</v-icon>&nbsp;
+        <span class="white--text">App Version {{ appVersion }} &nbsp; &nbsp; &nbsp; &nbsp;</span>
+        <span class="white--text">&copy; 2025 Rejeki Motor.&nbsp; &nbsp; &nbsp; Aplikasi Inventory Sederhana&nbsp; &nbsp; &nbsp;
+          <v-icon small>mdi-keyboard</v-icon> ybsDev </span>
       </div>
     </v-footer>
   </v-app>
@@ -88,6 +89,7 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
+import packageInfo from '../package.json';
 
 export default {
   name: 'App',
@@ -138,7 +140,7 @@ export default {
       },
     
     ],
-  
+    appVersion: packageInfo.version
   }),
   computed: {
     ...mapGetters(['user']), // Ambil data user dari Vuex

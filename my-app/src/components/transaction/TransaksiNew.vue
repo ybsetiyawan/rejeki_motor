@@ -29,7 +29,7 @@
                     v-model="searchQuery"
                     >
                   </v-text-field>
-                 
+                  
                   
                   <v-list>
                     <v-list-item 
@@ -39,7 +39,9 @@
                       :disabled="isItemIncart(item) || item.stok <= 0"
                       >
                       <v-list-item-content>
-                        <v-list-item-title class="customer-text">{{ item.kode + ' - ' + item.nama + ' - ' + formatHarga(item.modal) }}</v-list-item-title>
+                        <v-list-item-title class="customer-text">
+                          {{ item.kode + ' - ' + item.nama + ' - ' + formatHarga(item.modal) + ' - ' + formatStok(item.stok) }}
+                        </v-list-item-title>
                       </v-list-item-content>
                     </v-list-item>
                   </v-list>
@@ -129,7 +131,7 @@
         </div>
         <div class="flex-item">
           <label for="stock">Stock:</label>
-          <input type="number" id="quantity" v-model="item.stok" required disabled />
+          <input type="number" id="quantity" v-model="formattedStok" required disabled />
         </div>
         <div class="flex-item">
           <label for="uom">Uom:</label>
@@ -153,42 +155,38 @@
             <th>Modal</th>
             <th>Hjl</th>
             <th>Uom</th>
-            <th>Qty</th>
+            <!-- <th>Qty</th> -->
             <th>Total</th>
             <th class="delete-column"></th>
           </tr>
         </thead>
-        <tbody class="cart-body">
-          <tr v-for="(item, index) in cart" :key="index">
-            <td>{{ item.kode }}</td>
-            <td>{{ item.nama }}</td>
-            <!-- <td>{{ item.modal }}</td> -->
-            <!-- <td contenteditable="true" class="warning">{{ item.hpp }}</td> -->
-            <td contenteditable="true" @input="updateModal(index, $event)" class="info">{{ formatHarga(item.modal) }}</td> <!-- Make hpp editable -->
-            <td contenteditable="true" @input="updateHpp(index, $event)" class="warning">{{ formatHarga(item.hpp) }}</td> <!-- Make hpp editable -->
-            <td>{{ item.uom }}</td>
-            <td>{{ item.qty }}</td>
-            <td>{{ formatHarga(item.qty * item.hpp) }}</td>
-            <td>
-              <v-icon 
-                @click="removeFromCart(index)"
-                color="red"
-                size="15px"
-              >mdi-delete</v-icon>
-            </td>
-          </tr>
-          <tr style="height: 10px;"></tr> <!-- Tambahkan baris kosong untuk jarak -->
-          <tr>
-            <td colspan="6" style="text-align: left;"><strong>Subtotal</strong></td>
-            <td>{{ formatHarga(subtotal) }}</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </v-simple-table>
-      <div class="button-group" v-if="cart.length || formActive">
-        <button @click="saveTransaction" class="save-button" :disabled="!saveReceipt">Save</button>
-        <button v-show="formActive" @click="cancelTransaction" class="cancel-button">Cancel</button>
-      </div>  
+          <tbody class="cart-body">
+            <tr v-for="(item, index) in cart" :key="index">
+              <td>{{ item.kode }}</td>
+              <td>{{ item.nama }}</td>
+              <!-- <td>{{ item.modal }}</td> -->
+              <!-- <td contenteditable="true" class="warning">{{ item.hpp }}</td> -->
+              <td contenteditable="true" @input="updateModal(index, $event)" class="info">{{ formatHarga(item.modal) }}</td> <!-- Make hpp editable -->
+              <td contenteditable="true" @input="updateHpp(index, $event)" class="warning">{{ formatHarga(item.hpp) }}</td> <!-- Make hpp editable -->
+              <!-- <td>{{ item.uom }}</td> -->
+              <!-- <td>{{ item.qty }}</td> -->
+              <td contenteditable="true" @input="updateQty(index, $event)" class="grey">{{ (item.qty) }}</td> <!-- Make hpp editable -->
+              <td>{{ formatHarga(item.qty * item.hpp) }}</td>
+              <td>
+                <v-icon 
+                  @click="removeFromCart(index)"
+                  color="red"
+                  size="15px"
+                >mdi-delete</v-icon>
+              </td>
+            </tr>
+          </tbody>
+        </v-simple-table>
+          <h4 class="subtotal-display"><strong>Subtotal : {{ formatHarga(subtotal) }}</strong></h4>
+        <div class="button-group" v-if="cart.length || formActive">
+          <button @click="saveTransaction" class="save-button" :disabled="!saveReceipt">Save</button>
+          <button v-show="formActive" @click="cancelTransaction" class="cancel-button">Cancel</button>
+        </div>  
     </div>
     <InvoiceView v-if="showInvoice" :transaction="savedTransaction" :dialog="dialog" />
   </div>
@@ -262,6 +260,14 @@ export default {
     //   this.loadItems()
     // },
     computed: {
+       formattedStok: {
+          get() {
+            return Math.floor(this.item.stok); // Convert to integer for display
+          },
+          set(value) {
+            this.item.stok = value; // Update the original data
+          }
+        },
         // filteredItems() {
         //     return this.items.filter(item => item.nama.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
         //         item.kode.toLowerCase().includes(this.searchQuery.toLowerCase()));
@@ -290,6 +296,20 @@ export default {
       const newValue = event.target.innerText.trim();
       // console.log(`Updating hpp for item at index ${index} to ${newValue}`);
       this.cart[index].modal = newValue;
+      },
+
+      updateQty(index, event) {
+        const newValue = parseInt(event.target.innerText.trim(), 10);
+        if (newValue > this.cart[index].stok) {
+          alert('Jumlah melebihi stok yang tersedia!');
+          event.target.innerText = this.cart[index].qty; // Revert to previous value
+        } else {
+          this.cart[index].qty = newValue;
+        }
+      },
+
+      formatStok(stok) {
+      return Math.floor(stok); // Convert to integer
       },
       
        loadItems() {
@@ -330,6 +350,7 @@ export default {
                   uom: '',
                   hpp: '',
                   qty: 0,
+                  stok:''
                 }
                 this.saveReceipt = true;
             }
@@ -722,6 +743,7 @@ h4{
   border-collapse: collapse;
   border-radius: 5px;
   overflow: hidden;
+  overflow-y: auto; /* Enable vertical scrolling */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
@@ -731,7 +753,7 @@ h4{
   
 }
 .cart-body td{
-  height: 40px !important;
+  height: 30px !important;
   font-size: 12px !important;
   font-weight: bold !important;
 }
@@ -749,5 +771,20 @@ h4{
   font-size: 1.0em; /* Ukuran font lebih kecil */
 }
 
+.cart {
+  overflow-y: auto; /* Enable vertical scrolling */
+}
+
+.subtotal-display {
+  background-color: #f9f9f9; /* Light grey background for subtlety */
+  padding: 2px;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.93em; /* Slightly larger than normal text */
+  color: #333; /* Dark text color for readability */
+  margin: 10px 0; /* Reduced margin for compactness */
+  border: 4px solid #ddd; /* Light border for definition */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
 
 </style>
