@@ -55,7 +55,7 @@ export default new Vuex.Store({
       commit('clearLogoutTimer');
       const timer = setTimeout(() => {
         dispatch('logout');
-      }, 300000); // 300000 ms = 5 menit
+      }, 10800000); // 10800000 ms = 3 jam
       commit('setLogoutTimer', timer);
     },
     resetLogoutTimer({ dispatch }) {
