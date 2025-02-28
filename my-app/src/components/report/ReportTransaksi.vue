@@ -238,6 +238,9 @@ export default {
             existing.uom.push({
               uom: item.uom
             });
+            existing.jenis_item.push({
+              jenis_item: item.jenis_item
+            });
             existing.modal.push({
               modal: formatHarga(item.modal)
             });
@@ -269,6 +272,9 @@ export default {
               }],
               uom: [{
                 uom: item.uom
+              }],
+              jenis_item: [{
+                jenis_item: item.jenis_item
               }],
               modal: [{
                 modal: formatHarga(item.modal)
@@ -304,7 +310,7 @@ export default {
       // Flatten the data structure
       const flattenedData = this.desserts.map(item => {
         const maxLength = Math.max(item.items.length, item.kode.length, item.qty.length,
-                                    item.uom.length, item.modal.length,
+                                    item.uom.length,item.jenis_item.length, item.modal.length,
                                     item.hpp.length, item.totalhpp.length,
                                     item.totalmodal.length, item.laba.length );
         const rows = [];
@@ -317,6 +323,7 @@ export default {
             kode: item.kode[i] ? item.kode[i].kode_item : '',
             qty: item.qty[i] ? item.qty[i].qty_item : 0, // Pastikan ini adalah angka
             uom: item.uom[i] ? item.uom[i].uom : '',
+            jenis_item: item.jenis_item[i] ? item.jenis_item[i].jenis_item : '',
             modal: item.modal[i] ? parseFloat(item.modal[i].modal.replace(/\./g, '').replace(',', '.')) : 0, // Hapus formatHarga
             hpp: item.hpp[i] ? parseFloat(item.hpp[i].hpp.replace(/\./g, '').replace(',', '.')) : 0, // Hapus formatHarga
             totalhpp: item.totalhpp[i] ? parseFloat(item.totalhpp[i].totalhpp.replace(/\./g, '').replace(',', '.')) : 0, // Hapus formatHarga
@@ -359,6 +366,7 @@ export default {
         kode: '',
         qty: subtotalTotalQty, // Hitung subtotal qty
         uom: '',
+        jenis_item: '',
         modal: subtotalModal,
         hpp: subtotalHpp,
         totalhpp: subtotalTotalHpp,
@@ -378,6 +386,7 @@ export default {
         kode: '',
         qty: '',
         uom: '',
+        jenis_item: '',
         modal: '',
         hpp: '',
         totalhpp: '',
@@ -392,6 +401,8 @@ export default {
       XLSX.utils.book_append_sheet(wb, ws, "Report");
       XLSX.writeFile(wb, "Rpt_penjualan.xlsx");
     },
+
+
     exportToPDF() {
       const flattenedData = this.desserts.map(item => {
         const maxLength = Math.max(item.items.length, item.qty.length,
