@@ -45,6 +45,7 @@ const get_report_transaksi = `
     mi.nama AS nama_item,
     td.qty AS qty_item,
     ms.nama AS uom,
+	mj.nama AS jenis_item,
     td.harga AS hpp,
     td.modal AS modal,
     td.subtotal AS total
@@ -58,6 +59,7 @@ const get_report_transaksi = `
     m_item mi ON td.id_barang = mi.id
     JOIN 
     m_satuan ms ON mi.id_satuan = ms.id
+	JOIN m_jenis_item mj ON mi.id_jenis_item = mj.id
     ORDER BY 
     t.tanggal DESC;
 `;
