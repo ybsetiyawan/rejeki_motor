@@ -37,4 +37,6 @@ coverage/
 # Mengabaikan file .zip
 *.zip
 
+*.pdf
+
 
