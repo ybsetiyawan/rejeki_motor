@@ -1,790 +1,1092 @@
 <template>
-  <div class="container">
-    <form @submit.prevent="addToCart" class="receipt-form">
-      <div class="form-header">
-        <h3>Form Pengeluaran Barang</h3>
-        <button type="button" class="new-button" @click="activateForm" :disabled="formActive">New</button>
-        <v-dialog v-model="showItemList" max-width="700px" class="customer-dialog">
-          <v-card>
-            <v-card-title>
-              <span class="headline">Daftar Barang</span>
-                </v-card-title>
-                <v-card-text>
-                  <v-btn
-                    color="blue"
-                    elevation="8"
-                    @click="searchItems"
-                    :disabled="!searchQuery"
-                    class="font"
-                    x-small.
-                    >
-                    <v-icon>mdi-magnify</v-icon>
-                  </v-btn>
-                  <!-- <v-text-field v-model="searchQuery" label="Search Item" clearable></v-text-field> -->
-                  <v-text-field
-                    class="font"
-                    label="Cari Berdasarkan Kode atau Nama Item"
-                    single-line
-                    hide-details
-                    v-model="searchQuery"
-                    >
-                  </v-text-field>
-                  
-                  
-                  <v-list>
-                    <v-list-item 
-                      v-for="item in items" 
-                      :key="item.id"
-                      @click="selectItem(item)"
-                      :disabled="isItemIncart(item) || item.stok <= 0"
-                      >
-                      <v-list-item-content>
-                        <v-list-item-title class="customer-text">
-                          {{ item.kode + ' - ' + item.nama + ' - ' + formatHarga(item.modal) + ' - ' + formatStok(item.stok) }}
-                        </v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </v-list>
-                  <v-pagination
-                    class="custom-pagination"
-                    v-model="currentPage"
-                    :length="pageCount"
-                    :total-visible="7"
-                    @input="loadItems">
-                  </v-pagination>
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="closeItemList">Close</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-        <v-dialog v-model="showCustomerList" max-width="700px" class="supplier-dialog">
-          <v-card>
-            <v-card-title>
-              <span class="headline">Daftar Customer</span>
-            </v-card-title>
-            <v-card-text>
-              <v-text-field v-model="searchCustomerQuery" label="Search Supplier" clearable></v-text-field>
-              <v-list>
-                <v-list-item 
-                  v-for="customer in filteredCustomers" 
-                  :key="customer.id"
-                  @click="selectCustomer(customer)"
-                >
-                  <v-list-item-content>
-                    <v-list-item-title class="supplier-text">{{ customer.kode + ' - ' + customer.nama + ' - ' + customer.alamat }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="closeCustomerList">Close</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </div>
-      <div class="form-group flex-container">
-        <div class="flex-item">
-          <label for="tanggal">Tanggal</label>
-          <input type="date" v-model="transaction.tanggal" :disabled="!formActive">
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="supplier">Customer:</label>
-        <div class="input-with-icon">
-          <input class="input-item" type="text" id="supplier" v-model="transaction.nama" required disabled/>
-          <v-icon 
-            class="icon-item" 
-            @click="openCustomerList" 
-            :class="{ 'disabled-icon': isCustomerSearchDisabled() }"
-            :disabled="isCustomerSearchDisabled() || !formActive"
-          >mdi-magnify</v-icon>
-        </div>
-      </div>
-      <div class="form-group flex-container">
-        <div class="flex-item">
-          <label for="alamat">Kode Customer:</label>
-          <input type="text" id="alamat" v-model="transaction.kode" required disabled />
-        </div>
-        <div class="flex-item">
-          <label for="alamat">Nopol:</label>
-          <input type="text" id="alamat" v-model="transaction.nopol" required disabled />
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="itemName">Nama Item:</label>
-        <div class="input-with-icon">
-          <input class="input-item" type="text" id="itemName" v-model="item.nama" required disabled />
-          <v-icon class="icon-item" @click="openItemList" :disabled="!formActive">mdi-magnify</v-icon>
-        </div>
-      </div>
-      <div class="form-group flex-container">
-        <div class="flex-item">
-          <label for="itemName">Kode Item:</label>
-          <input type="text" id="itemCode" v-model="item.kode" required disabled />
-        </div>
-        <div class="flex-item">
-          <label for="quantity">Qty:</label>
-          <input type="number" id="quantity" min="1" :max="item.stok" v-model="item.qty" required :disabled="!formActive" />
-        </div>
-        <div class="flex-item">
-          <label for="stock">Stock:</label>
-          <input type="number" id="quantity" v-model="formattedStok" required disabled />
-        </div>
-        <div class="flex-item">
-          <label for="uom">Uom:</label>
-          <input type="text" id="uom" v-model="item.uom" required disabled />
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="keterangan">Keterangan:</label>
-        <input type="text" id="keterangan" v-model="keterangan" required :disabled="!formActive" autocomplete="off"/>
-      </div>
-      <button type="submit" class="submit-button" :disabled="!formActive">Add to Cart</button>
-    </form>
+  <v-row dense class="pa-2">
+    <!-- Kolom Kiri: Form Pengeluaran Barang -->
+    <v-col cols="12" lg="6" class="mb-3 mb-lg-0">
+      <v-card class="bengkel-card rounded-lg elevation-2 h-full">
+        <!-- Header Form -->
+        <div class="bengkel-header px-5 pt-4 pb-3">
+          <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center">
+              <v-avatar color="red lighten-5" size="40" class="mr-3 bengkel-avatar-ring">
+                <v-icon color="red darken-2">mdi-cart-arrow-up</v-icon>
+              </v-avatar>
+              <div>
+                <div class="text-subtitle-1 font-weight-bold grey--text text--darken-4">
+                  Form Pengeluaran Barang
+                </div>
+                <div class="text-caption grey--text text--darken-1">
+                  Input transaksi penjualan / barang keluar ke customer
+                </div>
+              </div>
+            </div>
 
-    <div class="cart">
-      <h4>Cart</h4>
-      <v-simple-table class="small-table">
-        <thead>
-          <tr>
-            <th>Kode</th>
-            <th>Nama</th>
-            <th>Modal</th>
-            <th>Hjl</th>
-            <th>Uom</th>
-            <!-- <th>Qty</th> -->
-            <th>Total</th>
-            <th class="delete-column"></th>
-          </tr>
-        </thead>
-          <tbody class="cart-body">
-            <tr v-for="(item, index) in cart" :key="index">
-              <td>{{ item.kode }}</td>
-              <td>{{ item.nama }}</td>
-              <!-- <td>{{ item.modal }}</td> -->
-              <!-- <td contenteditable="true" class="warning">{{ item.hpp }}</td> -->
-              <td contenteditable="true" @input="updateModal(index, $event)" class="info">{{ formatHarga(item.modal) }}</td> <!-- Make hpp editable -->
-              <td contenteditable="true" @input="updateHpp(index, $event)" class="warning">{{ formatHarga(item.hpp) }}</td> <!-- Make hpp editable -->
-              <!-- <td>{{ item.uom }}</td> -->
-              <!-- <td>{{ item.qty }}</td> -->
-              <td contenteditable="true" @input="updateQty(index, $event)" class="grey">{{ (item.qty) }}</td> <!-- Make hpp editable -->
-              <td>{{ formatHarga(item.qty * item.hpp) }}</td>
-              <td>
-                <v-icon 
-                  @click="removeFromCart(index)"
-                  color="red"
-                  size="15px"
-                >mdi-delete</v-icon>
-              </td>
-            </tr>
-          </tbody>
-        </v-simple-table>
-          <h4 class="subtotal-display"><strong>Subtotal : {{ formatHarga(subtotal) }}</strong></h4>
-        <div class="button-group" v-if="cart.length || formActive">
-          <button @click="saveTransaction" class="save-button" :disabled="!saveReceipt">Save</button>
-          <button v-show="formActive" @click="cancelTransaction" class="cancel-button">Cancel</button>
-        </div>  
-    </div>
+            <v-btn
+              small
+              depressed
+              color="red darken-2"
+              class="white--text font-weight-medium text-none px-4"
+              :disabled="formActive"
+              @click="activateForm"
+            >
+              <v-icon left small>mdi-plus</v-icon>
+              New
+            </v-btn>
+          </div>
+        </div>
+
+        <div class="bengkel-stripe"></div>
+
+        <!-- Isi Form -->
+        <v-card-text class="pa-5">
+          <form @submit.prevent="addToCart">
+            <v-row dense>
+              <v-col cols="12" sm="5">
+                <label class="field-label">Tanggal</label>
+                <v-text-field
+                  v-model="transaction.tanggal"
+                  type="date"
+                  outlined
+                  dense
+                  hide-details
+                  color="red darken-2"
+                  :disabled="!formActive"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12" sm="7">
+                <label class="field-label">Customer</label>
+                <v-text-field
+                  v-model="transaction.nama"
+                  placeholder="Pilih customer..."
+                  outlined
+                  dense
+                  hide-details
+                  readonly
+                  color="red darken-2"
+                  :disabled="!formActive || isCustomerSearchDisabled()"
+                  @click="!isCustomerSearchDisabled() && formActive ? openCustomerList() : null"
+                >
+                  <template v-slot:append>
+                    <v-icon
+                      small
+                      :color="!formActive || isCustomerSearchDisabled() ? 'grey lighten-1' : 'red darken-2'"
+                      style="cursor: pointer;"
+                      @click="openCustomerList"
+                    >
+                      mdi-magnify
+                    </v-icon>
+                  </template>
+                </v-text-field>
+              </v-col>
+
+              <v-col cols="12" sm="6" class="mt-2">
+                <label class="field-label">Kode Customer</label>
+                <v-text-field
+                  v-model="transaction.kode"
+                  outlined
+                  dense
+                  hide-details
+                  disabled
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12" sm="6" class="mt-2">
+                <label class="field-label">Nopol</label>
+                <v-text-field
+                  v-model="transaction.nopol"
+                  outlined
+                  dense
+                  hide-details
+                  disabled
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12" class="mt-2">
+                <label class="field-label">Nama Item</label>
+                <v-text-field
+                  v-model="item.nama"
+                  placeholder="Cari & pilih item..."
+                  outlined
+                  dense
+                  hide-details
+                  readonly
+                  color="red darken-2"
+                  :disabled="!formActive"
+                  @click="formActive ? openItemList() : null"
+                >
+                  <template v-slot:append>
+                    <v-icon
+                      small
+                      :color="!formActive ? 'grey lighten-1' : 'red darken-2'"
+                      style="cursor: pointer;"
+                      @click="openItemList"
+                    >
+                      mdi-magnify
+                    </v-icon>
+                  </template>
+                </v-text-field>
+              </v-col>
+
+              <v-col cols="6" sm="3" class="mt-2">
+                <label class="field-label">Kode Item</label>
+                <v-text-field
+                  v-model="item.kode"
+                  outlined
+                  dense
+                  hide-details
+                  disabled
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="6" sm="3" class="mt-2">
+                <label class="field-label">Qty</label>
+                <v-text-field
+                  v-model.number="item.qty"
+                  type="number"
+                  min="1"
+                  :max="item.stok"
+                  outlined
+                  dense
+                  hide-details
+                  color="red darken-2"
+                  :disabled="!formActive"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="6" sm="3" class="mt-2">
+                <label class="field-label">Stock</label>
+                <v-text-field
+                  v-model="formattedStok"
+                  type="number"
+                  outlined
+                  dense
+                  hide-details
+                  disabled
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="6" sm="3" class="mt-2">
+                <label class="field-label">Uom</label>
+                <v-text-field
+                  v-model="item.uom"
+                  outlined
+                  dense
+                  hide-details
+                  disabled
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12" class="mt-2">
+                <label class="field-label">Keterangan</label>
+                <v-text-field
+                  v-model="keterangan"
+                  placeholder="Catatan transaksi pengeluaran..."
+                  outlined
+                  dense
+                  hide-details
+                  color="red darken-2"
+                  autocomplete="off"
+                  :disabled="!formActive"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12" class="mt-4">
+                <v-btn
+                  type="submit"
+                  block
+                  small
+                  depressed
+                  color="red darken-2"
+                  class="white--text font-weight-medium text-none py-4"
+                  :disabled="!formActive"
+                >
+                  <v-icon left small>mdi-cart-plus</v-icon>
+                  Add to Cart
+                </v-btn>
+              </v-col>
+            </v-row>
+          </form>
+        </v-card-text>
+      </v-card>
+    </v-col>
+
+    <!-- Kolom Kanan: Cart Barang Keluar -->
+    <v-col cols="12" lg="6">
+      <v-card class="bengkel-card rounded-lg elevation-2 h-full d-flex flex-column">
+        <div class="bengkel-header px-5 pt-4 pb-3">
+          <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center">
+              <v-avatar color="red lighten-5" size="40" class="mr-3 bengkel-avatar-ring">
+                <v-icon color="red darken-2">mdi-receipt-text-check</v-icon>
+              </v-avatar>
+              <div>
+                <div class="d-flex align-center">
+                  <span class="text-subtitle-1 font-weight-bold grey--text text--darken-4 mr-2">
+                    Daftar Barang Keluar (Cart)
+                  </span>
+                  <v-chip x-small label color="red lighten-5" text-color="red darken-3" class="font-weight-bold">
+                    {{ cart.length }} Item
+                  </v-chip>
+                </div>
+                <div class="text-caption grey--text text--darken-1">
+                  Klik kolom Modal, Hjl, atau Qty untuk mengubah nilai langsung
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bengkel-stripe"></div>
+
+        <v-card-text class="pa-4 flex-grow-1">
+          <div class="table-scroll-wrapper">
+            <v-simple-table class="bengkel-table" fixed-header>
+              <thead>
+                <tr>
+                  <th class="text-left" style="width: 95px;">KODE</th>
+                  <th class="text-left">NAMA</th>
+                  <th class="text-right" style="width: 95px;">MODAL</th>
+                  <th class="text-right" style="width: 95px;">HJL</th>
+                  <th class="text-right" style="width: 65px;">QTY</th>
+                  <th class="text-right" style="width: 110px;">TOTAL</th>
+                  <th class="text-center" style="width: 55px;">AKSI</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(rowItem, index) in cart" :key="index" class="cart-row">
+                  <td>
+                    <span class="kode-red-pill">{{ rowItem.kode }}</span>
+                  </td>
+                  <td class="font-weight-bold grey--text text--darken-4">
+                    {{ rowItem.nama }}
+                  </td>
+                  <td
+                    contenteditable="true"
+                    class="text-right editable-cell grey--text text--darken-2"
+                    @blur="updateModal(index, $event)"
+                  >
+                    {{ formatHarga(rowItem.modal) }}
+                  </td>
+                  <td
+                    contenteditable="true"
+                    class="text-right editable-cell font-weight-bold red--text text--darken-3"
+                    @blur="updateHpp(index, $event)"
+                  >
+                    {{ formatHarga(rowItem.hpp) }}
+                  </td>
+                  <td
+                    contenteditable="true"
+                    class="text-right editable-cell font-weight-bold grey--text text--darken-4"
+                    @blur="updateQty(index, $event)"
+                  >
+                    {{ rowItem.qty }}
+                  </td>
+                  <td class="text-right font-weight-bold grey--text text--darken-4">
+                    {{ formatHarga(Number(rowItem.qty || 0) * Number(rowItem.hpp || 0)) }}
+                  </td>
+                  <td class="text-center">
+                    <v-btn
+                      icon
+                      x-small
+                      color="red darken-2"
+                      @click="removeFromCart(index)"
+                      title="Hapus dari Cart"
+                    >
+                      <v-icon small>mdi-delete-outline</v-icon>
+                    </v-btn>
+                  </td>
+                </tr>
+
+                <tr v-if="cart.length === 0">
+                  <td colspan="7" class="text-center py-10 grey--text">
+                    <v-icon large color="red lighten-3" class="mb-2">mdi-cart-off</v-icon>
+                    <div>Belum ada item di dalam cart.</div>
+                  </td>
+                </tr>
+              </tbody>
+            </v-simple-table>
+          </div>
+
+          <!-- Subtotal Box -->
+          <div class="subtotal-box mt-3 px-4 py-2 rounded d-flex align-center justify-space-between">
+            <span class="text-caption font-weight-bold grey--text text--darken-2">
+              SUBTOTAL TRANSAKSI
+            </span>
+            <span class="text-subtitle-1 font-weight-bold red--text text--darken-3">
+              {{ formatHarga(subtotal) }}
+            </span>
+          </div>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <!-- Tombol Simpan / Batal -->
+        <div v-if="cart.length || formActive" class="pagination-bar px-5 py-3 d-flex justify-end">
+          <v-btn
+            v-show="formActive"
+            small
+            outlined
+            color="grey darken-2"
+            class="text-none font-weight-medium mr-2"
+            @click="cancelTransaction"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            small
+            depressed
+            color="red darken-2"
+            class="white--text font-weight-medium text-none px-4"
+            :disabled="!saveReceipt || cart.length === 0"
+            @click="saveTransaction"
+          >
+            <v-icon left small>mdi-content-save-outline</v-icon>
+            Save
+          </v-btn>
+        </div>
+      </v-card>
+    </v-col>
+
+    <!-- Dialog Daftar Barang -->
+    <v-dialog v-model="showItemList" max-width="760px">
+      <v-card class="rounded-lg">
+        <v-card-title class="modal-top-bar px-5 py-4">
+          <div class="d-flex align-center">
+            <v-avatar color="red lighten-5" size="36" class="mr-3 bengkel-avatar-ring">
+              <v-icon color="red darken-2" small>mdi-package-variant</v-icon>
+            </v-avatar>
+            <div>
+              <div class="text-subtitle-1 font-weight-bold grey--text text--darken-4">
+                Daftar Barang
+              </div>
+              <div class="text-caption grey--text text--darken-1">
+                Item yang sudah di cart atau stok habis otomatis ditandai &amp; dinonaktifkan
+              </div>
+            </div>
+          </div>
+          <v-spacer></v-spacer>
+          <v-btn icon small color="grey darken-1" @click="closeItemList">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        <div class="bengkel-stripe"></div>
+
+        <v-card-text class="pa-5">
+          <v-text-field
+            v-model="searchQuery"
+            label="Cari berdasarkan kode atau nama item..."
+            outlined
+            dense
+            clearable
+            hide-details
+            color="red darken-2"
+            class="mb-3"
+            @keyup.enter="searchItems"
+            @click:clear="clearItemSearch"
+          >
+            <template v-slot:append>
+              <v-btn
+                x-small
+                depressed
+                color="red darken-2"
+                class="white--text text-none px-3"
+                :disabled="!searchQuery"
+                @click="searchItems"
+              >
+                Cari
+              </v-btn>
+            </template>
+          </v-text-field>
+
+          <v-list dense class="border-list rounded" style="max-height: 360px; overflow-y: auto;">
+            <v-list-item
+              v-for="rowItem in items"
+              :key="rowItem.id"
+              :disabled="isItemIncart(rowItem) || Number(rowItem.stok) <= 0"
+              :class="[
+                'list-hover-red',
+                { 'in-cart-item': isItemIncart(rowItem) || Number(rowItem.stok) <= 0 }
+              ]"
+              @click="!(isItemIncart(rowItem) || Number(rowItem.stok) <= 0) && selectItem(rowItem)"
+            >
+              <v-list-item-content>
+                <v-list-item-title class="d-flex flex-wrap align-center">
+                  <span class="kode-red-pill mr-2">{{ rowItem.kode }}</span>
+                  <span class="font-weight-bold grey--text text--darken-4 mr-2">
+                    {{ rowItem.nama }}
+                  </span>
+
+                  <v-chip
+                    v-if="isItemIncart(rowItem)"
+                    x-small
+                    label
+                    color="red darken-2"
+                    text-color="white"
+                    class="font-weight-bold mr-auto"
+                  >
+                    <v-icon x-small left>mdi-check</v-icon>
+                    Di Cart
+                  </v-chip>
+                  <v-chip
+                    v-else-if="Number(rowItem.stok) <= 0"
+                    x-small
+                    label
+                    color="grey lighten-2"
+                    text-color="grey darken-3"
+                    class="font-weight-bold mr-auto"
+                  >
+                    Habis
+                  </v-chip>
+                  <span v-else class="mr-auto"></span>
+
+                  <span class="text-caption grey--text text--darken-2 mr-3">
+                    Modal: <strong>{{ formatHarga(rowItem.modal) }}</strong>
+                  </span>
+                  <v-chip x-small label color="red lighten-5" text-color="red darken-3" class="font-weight-bold">
+                    Stok: {{ formatStok(rowItem.stok) }}
+                  </v-chip>
+                </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item v-if="!items || items.length === 0">
+              <v-list-item-content class="text-center py-6 grey--text">
+                Tidak ada data barang yang ditemukan.
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+
+          <!-- Paginasi Ringkas Merah Bengkel -->
+          <div class="dialog-pagination-bar mt-3 px-3 py-2 rounded d-flex flex-wrap align-center justify-space-between">
+            <div class="text-caption grey--text text--darken-2">
+              Total <strong class="grey--text text--darken-4">{{ totalItems }}</strong> item
+            </div>
+
+            <div class="d-flex align-center">
+              <v-btn
+                icon
+                x-small
+                outlined
+                color="red darken-2"
+                class="mr-1 page-nav-btn"
+                :disabled="currentPage <= 1"
+                @click="goToItemPage(1)"
+                title="Halaman Pertama"
+              >
+                <v-icon x-small>mdi-chevron-double-left</v-icon>
+              </v-btn>
+
+              <v-btn
+                x-small
+                outlined
+                color="red darken-2"
+                class="text-none font-weight-medium mr-1 page-step-btn"
+                :disabled="currentPage <= 1"
+                @click="goToItemPage(currentPage - 1)"
+              >
+                <v-icon left x-small>mdi-chevron-left</v-icon>
+                Prev
+              </v-btn>
+
+              <div class="page-indicator-box mx-1">
+                <span>Hal</span>
+                <strong class="red--text text--darken-3 mx-1">{{ currentPage }}</strong>
+                <span>/ {{ pageCount }}</span>
+              </div>
+
+              <v-btn
+                x-small
+                outlined
+                color="red darken-2"
+                class="text-none font-weight-medium ml-1 page-step-btn"
+                :disabled="currentPage >= pageCount"
+                @click="goToItemPage(currentPage + 1)"
+              >
+                Next
+                <v-icon right x-small>mdi-chevron-right</v-icon>
+              </v-btn>
+
+              <v-btn
+                icon
+                x-small
+                outlined
+                color="red darken-2"
+                class="ml-1 page-nav-btn"
+                :disabled="currentPage >= pageCount"
+                @click="goToItemPage(pageCount)"
+                title="Halaman Terakhir"
+              >
+                <v-icon x-small>mdi-chevron-double-right</v-icon>
+              </v-btn>
+            </div>
+          </div>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions class="px-5 py-3 grey lighten-5">
+          <v-spacer></v-spacer>
+          <v-btn text color="grey darken-2" class="text-none" @click="closeItemList">Tutup</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog Daftar Customer -->
+    <v-dialog v-model="showCustomerList" max-width="700px">
+      <v-card class="rounded-lg">
+        <v-card-title class="modal-top-bar px-5 py-4">
+          <div class="d-flex align-center">
+            <v-avatar color="red lighten-5" size="36" class="mr-3 bengkel-avatar-ring">
+              <v-icon color="red darken-2" small>mdi-account-search-outline</v-icon>
+            </v-avatar>
+            <span class="text-subtitle-1 font-weight-bold grey--text text--darken-4">
+              Daftar Customer
+            </span>
+          </div>
+          <v-spacer></v-spacer>
+          <v-btn icon small color="grey darken-1" @click="closeCustomerList">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        <div class="bengkel-stripe"></div>
+
+        <v-card-text class="pa-5">
+          <v-text-field
+            v-model="searchCustomerQuery"
+            label="Cari kode atau nama customer..."
+            outlined
+            dense
+            clearable
+            hide-details
+            color="red darken-2"
+            class="mb-3"
+          ></v-text-field>
+
+          <v-list dense class="border-list rounded" style="max-height: 320px; overflow-y: auto;">
+            <v-list-item
+              v-for="customer in filteredCustomers"
+              :key="customer.id"
+              class="list-hover-red"
+              @click="selectCustomer(customer)"
+            >
+              <v-list-item-content>
+                <v-list-item-title class="d-flex flex-wrap align-center">
+                  <span class="kode-red-pill mr-2">{{ customer.kode }}</span>
+                  <span class="font-weight-bold grey--text text--darken-4 mr-2">{{ customer.nama }}</span>
+                  <v-chip v-if="customer.nopol" x-small label color="red lighten-5" text-color="red darken-3" class="font-weight-bold">
+                    {{ customer.nopol }}
+                  </v-chip>
+                </v-list-item-title>
+                <v-list-item-subtitle v-if="customer.alamat" class="text-caption mt-1">
+                  {{ customer.alamat }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions class="px-5 py-3 grey lighten-5">
+          <v-spacer></v-spacer>
+          <v-btn text color="grey darken-2" class="text-none" @click="closeCustomerList">Tutup</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <InvoiceView v-if="showInvoice" :transaction="savedTransaction" :dialog="dialog" />
-  </div>
+  </v-row>
 </template>
 
 <script>
 import api from '../../services/api';
-import { loadCustomers, loadItems,  } from '../../utils/utils';
+import { loadCustomers, loadItems } from '../../utils/utils';
 import InvoiceView from '../print/InvoiceView.vue';
 import { formatHarga } from '@/mixins/FilterMixin';
 
-
 export default {
-    components: { InvoiceView },
-    data() {
-        return {
-            keterangan: '',
-            initialKeterangan: '', // Add initialKeterangan here
-            cart: [],
-            formActive: false,
-            showItemList: false,
-            items: [],
-            searchQuery: '',
-            dialog: false,
-            saveReceipt: false,
-            customers:[],
-            searchCustomerQuery: '',
-            showCustomerList: '',
-            noFaktur: '',
-            kodeInvoice:'',
-            savedTransaction: null,
-            showInvoice: false,
-            currentPage: 1,
-            pageSize: 10,
-            totalItems: 0, 
+  name: 'PengeluaranFormView',
+  components: { InvoiceView },
+  data() {
+    return {
+      keterangan: '',
+      initialKeterangan: '',
+      cart: [],
+      formActive: false,
+      showItemList: false,
+      items: [],
+      searchQuery: '',
+      dialog: false,
+      saveReceipt: false,
+      customers: [],
+      searchCustomerQuery: '',
+      showCustomerList: false,
+      noFaktur: '',
+      kodeInvoice: '',
+      savedTransaction: null,
+      showInvoice: false,
+      currentPage: 1,
+      pageSize: 10,
+      totalItems: 0,
 
+      transaction: {
+        idCustomer: '',
+        nama: '',
+        kode: '',
+        nopol: '',
+        tanggal: '',
+        alamat: '',
+        no_hp: '',
+      },
 
-            transaction: {
-              idCustomer: '',
-              nama: '',
-              kode: '',
-              nopol: '',
-              tanggal: ''
-            },
+      item: {
+        id: '',
+        nama: '',
+        kode: '',
+        modal: '',
+        hpp: '',
+        uom: '',
+        qty: 0,
+        stok: '',
+      },
+      formatHarga,
+    };
+  },
+  watch: {
+    keterangan(newVal) {
+      if (newVal) {
+        this.keterangan = newVal.toUpperCase();
+      }
+    },
+    cart(newCart) {
+      if (!newCart.length) {
+        this.saveReceipt = false;
+      }
+    },
+  },
+  computed: {
+    formattedStok: {
+      get() {
+        return this.item.stok === '' || this.item.stok === null || this.item.stok === undefined
+          ? ''
+          : Math.floor(Number(this.item.stok));
+      },
+      set(value) {
+        this.item.stok = value;
+      },
+    },
+    filteredCustomers() {
+      const q = (this.searchCustomerQuery || '').toLowerCase();
+      return this.customers.filter(
+        customer =>
+          (customer.nama && customer.nama.toLowerCase().includes(q)) ||
+          (customer.kode && customer.kode.toLowerCase().includes(q)) ||
+          (customer.nopol && customer.nopol.toLowerCase().includes(q))
+      );
+    },
+    pageCount() {
+      return Math.max(1, Math.ceil(this.totalItems / this.pageSize));
+    },
+    subtotal() {
+      return this.cart.reduce(
+        (acc, rowItem) => acc + (Number(rowItem.qty) || 0) * (Number(rowItem.hpp) || 0),
+        0
+      );
+    },
+  },
+  methods: {
+    parseNumeric(raw) {
+      if (typeof raw === 'number') return Number.isNaN(raw) ? 0 : raw;
+      let str = String(raw || '').trim();
+      if (!str) return 0;
+      str = str.replace(/[^\d.,-]/g, '');
+      if (str.includes('.') && str.includes(',')) {
+        str = str.replace(/\./g, '').replace(',', '.');
+      } else if (str.includes('.')) {
+        if (/^-?\d{1,3}(\.\d{3})+$/.test(str)) {
+          str = str.replace(/\./g, '');
+        }
+      } else if (str.includes(',')) {
+        str = str.replace(',', '.');
+      }
+      const num = parseFloat(str);
+      return Number.isNaN(num) ? 0 : num;
+    },
 
-            item: {
-              id: '',
-              nama: '',
-              kode: '',
-              modal: '',
-              hpp: '',
-              uom: '',
-              qty: 0,
-              stok: ''
-            },
-            formatHarga
+    updateHpp(index, event) {
+      const val = this.parseNumeric(event.target.innerText);
+      this.cart[index].hpp = val;
+      event.target.innerText = this.formatHarga(val);
+    },
 
+    updateModal(index, event) {
+      const val = this.parseNumeric(event.target.innerText);
+      this.cart[index].modal = val;
+      event.target.innerText = this.formatHarga(val);
+    },
+
+    updateQty(index, event) {
+      const parsed = parseInt(String(event.target.innerText || '').replace(/[^\d]/g, ''), 10);
+      const newValue = Number.isNaN(parsed) ? 1 : parsed;
+      const maxStok = Number(this.cart[index].stok);
+      if (!Number.isNaN(maxStok) && newValue > maxStok) {
+        alert('Jumlah melebihi stok yang tersedia!');
+        event.target.innerText = this.cart[index].qty;
+      } else {
+        this.cart[index].qty = Math.max(1, newValue);
+        event.target.innerText = this.cart[index].qty;
+      }
+    },
+
+    formatStok(stok) {
+      return Math.floor(Number(stok) || 0);
+    },
+
+    loadItems() {
+      return loadItems(this.currentPage, this.pageSize, this.searchQuery)
+        .then(data => {
+          this.items = data.items;
+          this.totalItems = data.total;
+        })
+        .catch(error => console.error('Error Loading Items:', error));
+    },
+
+    goToItemPage(page) {
+      const target = Math.min(Math.max(1, page), this.pageCount);
+      if (target === this.currentPage) return;
+      this.currentPage = target;
+      this.loadItems();
+    },
+
+    loadCustomers() {
+      loadCustomers().then(customers => {
+        this.customers = customers || [];
+      });
+    },
+
+    async activateForm() {
+      this.formActive = true;
+      this.loadItems();
+      this.loadCustomers();
+      this.initialKeterangan = this.keterangan;
+    },
+
+    addToCart() {
+      if (!this.transaction.tanggal || !this.item.nama) {
+        alert('Tanggal belum diisi atau item belum dipilih');
+        return;
+      }
+      if (!this.item.qty || Number(this.item.qty) <= 0) {
+        alert('Qty harus lebih dari 0');
+        return;
+      }
+      if (this.item.stok !== '' && Number(this.item.qty) > Number(this.item.stok)) {
+        alert('Qty melebihi stok tersedia');
+        return;
+      }
+      if (this.formActive) {
+        this.cart.push({
+          ...this.item,
+          modal: this.parseNumeric(this.item.modal),
+          hpp: this.parseNumeric(this.item.hpp),
+          qty: Number(this.item.qty),
+        });
+
+        this.item = {
+          id: '',
+          nama: '',
+          kode: '',
+          modal: '',
+          hpp: '',
+          uom: '',
+          qty: 0,
+          stok: '',
         };
+        this.saveReceipt = true;
+      }
     },
-    watch: {
-        receipt: {
-            handler(newVal) {
-                if (newVal.keterangan) {
-                    this.keterangan = newVal.keterangan.toUpperCase();
-                }
-            },
-            deep: true
-        }
+
+    isItemIncart(rowItem) {
+      return this.cart.some(
+        cartItem =>
+          (cartItem.id && rowItem.id && cartItem.id === rowItem.id) ||
+          (cartItem.kode && rowItem.kode && cartItem.kode === rowItem.kode)
+      );
     },
-    // mounted() {
-    //   this.loadItems()
-    // },
-    computed: {
-       formattedStok: {
-          get() {
-            return Math.floor(this.item.stok); // Convert to integer for display
-          },
-          set(value) {
-            this.item.stok = value; // Update the original data
-          }
-        },
-        // filteredItems() {
-        //     return this.items.filter(item => item.nama.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        //         item.kode.toLowerCase().includes(this.searchQuery.toLowerCase()));
-        // },
-        filteredCustomers() {
-            return this.customers.filter(customer => customer.nama.toLowerCase().includes(this.searchCustomerQuery.toLowerCase()) ||
-                customer.kode.toLowerCase().includes(this.searchCustomerQuery.toLowerCase()));
-        },
-        pageCount() {
-        return Math.ceil(this.totalItems / this.pageSize);
-        },
-        subtotal() {
-          return this.cart.reduce((acc, item) => acc + (item.qty * item.hpp), 0);
-        }
+
+    isCustomerSearchDisabled() {
+      return this.cart.length > 0;
     },
-    methods: {
-      
-      // hpp adalah harga jual ke customer
-      updateHpp(index, event) {
-      const newValue = event.target.innerText.trim();
-      // console.log(`Updating hpp for item at index ${index} to ${newValue}`);
-      this.cart[index].hpp = newValue;
-      },
 
-      updateModal(index, event) {
-      const newValue = event.target.innerText.trim();
-      // console.log(`Updating hpp for item at index ${index} to ${newValue}`);
-      this.cart[index].modal = newValue;
-      },
+    removeFromCart(index) {
+      this.cart.splice(index, 1);
+    },
 
-      updateQty(index, event) {
-        const newValue = parseInt(event.target.innerText.trim(), 10);
-        if (newValue > this.cart[index].stok) {
-          alert('Jumlah melebihi stok yang tersedia!');
-          event.target.innerText = this.cart[index].qty; // Revert to previous value
-        } else {
-          this.cart[index].qty = newValue;
+    async saveTransaction() {
+      const id_customer = this.transaction.idCustomer || this.transaction.id;
+      const tanggal = this.transaction.tanggal;
+      const keterangan = this.keterangan;
+      const detailPayload = this.cart.map(rowItem => ({
+        id_barang: rowItem.id,
+        nama: rowItem.nama,
+        kode: rowItem.kode,
+        qty: Number(rowItem.qty) || 0,
+        uom: rowItem.uom,
+        harga: this.parseNumeric(rowItem.hpp),
+        hpp: this.parseNumeric(rowItem.hpp),
+        modal: this.parseNumeric(rowItem.modal),
+      }));
+
+      try {
+        const response = await api.post('/t_transaksi', {
+          id_customer: id_customer,
+          tanggal: tanggal,
+          keterangan: keterangan,
+          detail: detailPayload,
+        });
+
+        this.noFaktur = response.data.no_faktur;
+        this.kodeInvoice = this.noFaktur;
+
+        this.savedTransaction = {
+          kodeInvoice: this.kodeInvoice,
+          kodeCustomer: this.transaction.kode,
+          namaCustomer: this.transaction.nama,
+          alamatCustomer: this.transaction.alamat,
+          nopolCustomer: this.transaction.nopol,
+          noHpCustomer: this.transaction.no_hp,
+          tanggal: this.transaction.tanggal,
+          keterangan: this.keterangan,
+          items: detailPayload,
+          total: detailPayload.reduce((sum, rowItem) => sum + rowItem.qty * rowItem.hpp, 0),
+        };
+
+        this.showInvoice = true;
+        this.dialog = true;
+
+        alert('Transaksi berhasil disimpan!');
+        this.cancelTransaction();
+      } catch (error) {
+        console.error('Error saving transaction:', error);
+        alert('Terjadi kesalahan saat menyimpan transaksi. Silakan coba lagi.');
+      }
+    },
+
+    cancelTransaction() {
+      this.cart = [];
+      this.formActive = false;
+      this.transaction = {
+        idCustomer: '',
+        nama: '',
+        kode: '',
+        nopol: '',
+        tanggal: '',
+        alamat: '',
+        no_hp: '',
+      };
+      this.item = {
+        id: '',
+        nama: '',
+        kode: '',
+        modal: '',
+        hpp: '',
+        uom: '',
+        qty: 0,
+        stok: '',
+      };
+      this.keterangan = '';
+      this.saveReceipt = false;
+    },
+
+    selectItem(rowItem) {
+      if (this.isItemIncart(rowItem) || Number(rowItem.stok) <= 0) return;
+      this.item.id = rowItem.id;
+      this.item.nama = rowItem.nama;
+      this.item.kode = rowItem.kode;
+      this.item.modal = this.parseNumeric(rowItem.modal);
+      this.item.hpp = this.parseNumeric(rowItem.hpp);
+      this.item.uom = rowItem.satuan_nama;
+      this.item.stok = rowItem.stok;
+      this.item.qty = 1;
+      this.showItemList = false;
+    },
+
+    closeItemList() {
+      this.showItemList = false;
+    },
+
+    openItemList() {
+      if (this.formActive) {
+        this.showItemList = true;
+        this.loadItems();
+      }
+    },
+
+    openCustomerList() {
+      if (this.formActive && !this.isCustomerSearchDisabled()) {
+        this.showCustomerList = true;
+        this.loadCustomers();
+      }
+    },
+
+    closeCustomerList() {
+      this.showCustomerList = false;
+    },
+
+    selectCustomer(customer) {
+      this.transaction.idCustomer = customer.id;
+      this.transaction.nama = customer.nama;
+      this.transaction.kode = customer.kode;
+      this.transaction.nopol = customer.nopol;
+      this.transaction.no_hp = customer.no_hp;
+      this.transaction.alamat = customer.alamat;
+      this.showCustomerList = false;
+    },
+
+    searchItems() {
+      this.currentPage = 1;
+      this.loadItems().then(() => {
+        if (this.items.length === 0) {
+          alert('Tidak ada item yang ditemukan.');
         }
-      },
-
-      formatStok(stok) {
-      return Math.floor(stok); // Convert to integer
-      },
-      
-       loadItems() {
-       return loadItems(this.currentPage, this.pageSize, this.searchQuery)
-          .then(data => {
-            this.items = data.items;
-            this.totalItems = data.total
-          })
-          .catch(error => console.error('Error Loading Items:', error))
-       },
-
-       
-        loadCustomers() {
-            loadCustomers().then(customers => {
-                this.customers = customers || [];
       });
     },
-        async activateForm() {
-            this.formActive = true;
-            this.loadItems();
-            this.loadCustomers();
-            this.initialKeterangan = this.keterangan; // Save initial keterangan
-        },
-        addToCart() {
-          if (!this.transaction.tanggal || !this.item.nama ) {
-            alert('Tanggal belum diisi atau item belum dipilih')
-            return;
-          }
-            if (this.formActive) {
-                this.cart.push({ ...this.item,
-                  hpp: this.item.hpp
-                 });
-             
-                this.item = {
-                  nama: '',
-                  kode: '',
-                  modal: '',
-                  uom: '',
-                  hpp: '',
-                  qty: 0,
-                  stok:''
-                }
-                this.saveReceipt = true;
-            }
-        },
-        isItemIncart(item) {
-            return this.cart.some(cartItem => cartItem.kode === item.kode);
-        },
-        isCustomerSearchDisabled() {
-            return this.cart.length > 0 ;
-        },
-        removeFromCart(index) {
-            this.cart.splice(index, 1);
-        },
-        
 
-        async saveTransaction() {
-          const id_customer = this.transaction.id;
-          const tanggal = this.transaction.tanggal;
-          const keterangan = this.keterangan;
-          const cart = this.cart.map(item => ({
-            id_barang: item.id,
-            nama: item.nama,
-            kode: item.kode,
-            qty: item.qty,
-            uom: item.uom,
-            harga: item.hpp,
-            modal: item.modal,
-          }));
-
-          try {
-
-            // console.log('Saving transaction with data:', {
-            //   id_customer,
-            //   tanggal,
-            //   keterangan,
-            //   cart
-            // });
-
-            const response = await api.post('/t_transaksi', {
-              id_customer: id_customer,
-              tanggal: tanggal,
-              keterangan: keterangan,
-              detail: cart
-            });
-
-            // console.log('API response:', response.data);
-
-            this.noFaktur = response.data.no_faktur;
-            this.kodeInvoice = this.noFaktur;
-
-            // console.log('New kodeInvoice:', this.noFaktur);
-
-            this.savedTransaction = {
-              kodeInvoice: this.kodeInvoice,
-              kodeCustomer: this.transaction.kode,
-              namaCustomer: this.transaction.nama,
-              alamatCustomer: this.transaction.alamat,
-              nopolCustomer: this.transaction.nopol,
-              noHpCustomer: this.transaction.no_hp,
-              tanggal: this.transaction.tanggal,
-              keterangan: this.keterangan,
-              items: this.cart,
-              total: this.cart.reduce((sum, item) => sum + (item.qty * item.hpp), 0) // Calculate total
-            };
-
-            // console.log('Saved Transaction:', this.savedTransaction);
-
-            this.showInvoice = true;
-            // console.log('showInvoice set to:', this.showInvoice);
-
-            alert('Transaksi berhasil disimpan!');
-            this.cancelTransaction();
-          } catch (error) {
-            // console.error('Error saving transaction:', error);
-            alert('Terjadi kesalahan saat menyimpan transaksi. Silakan coba lagi.');
-          }
-        },
-
-        cancelTransaction() {
-            this.cart = [];
-            this.formActive = false;
-            this.transaction = {
-              nama: '',
-              kode: '',
-              nopol: '',
-              tanggal: ''
-            }
-            this.item = {
-              nama: '',
-              kode: '',
-              uom: '',
-              stok: '',
-              qty: 0,
-            }
-            this.keterangan = '';
-            this.saveReceipt = false;
-        },
-        selectItem(item) {
-            this.item.id = item.id;
-            this.item.nama = item.nama;
-            this.item.kode = item.kode;
-            this.item.modal = item.modal;
-            this.item.hpp = item.hpp,
-            this.item.uom = item.satuan_nama;
-            this.item.stok = item.stok;
-            this.showItemList = false;
-        },
-        closeItemList() {
-            this.showItemList = false;
-        },
-        openItemList() {
-            if (this.formActive) {
-                this.showItemList = true;
-            }
-        },
-        openCustomerList() {
-            if (!this.isCustomerSearchDisabled()) {
-                this.showCustomerList = true;
-                // this.loadSuppliers();
-                this.loadCustomers();
-            }
-        },
-        closeCustomerList() {
-            this.showSCustomerList = false;
-        },
-        // console.log('Selected Supplier:', supplier);
-        selectCustomer(customer) {
-          this.transaction.id = customer.id;
-          this.transaction.nama = customer.nama;
-          this.transaction.kode = customer.kode;
-          this.transaction.nopol = customer.nopol;
-          this.transaction.no_hp = customer.no_hp;
-          this.transaction.alamat = customer.alamat;
-          this.showCustomerList = false;
-        },
-        searchItems() {
-          this.currentPage = 1;
-          this.loadItems().then(() => {
-            if (this.items.length === 0) {
-              alert('Tidak ada item yang ditemukan.');
-            }
-      });
-    }
-    }
+    clearItemSearch() {
+      this.searchQuery = '';
+      this.currentPage = 1;
+      this.loadItems();
+    },
+  },
 };
-
 </script>
 
 <style scoped>
-
-.container {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px;
-  height: 85vh;
+.bengkel-card {
+  border: 1px solid #f1dcdc;
+  background-color: #ffffff;
 }
 
-.receipt-form, .cart {
-  flex: 1;
-  max-width: 50%;
-  margin-top: -10px;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
+.bengkel-header {
+  background: linear-gradient(180deg, #fff6f6 0%, #ffffff 100%);
 }
 
-.form-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: -10px;
-  
+.bengkel-avatar-ring {
+  border: 1px solid #fecaca;
 }
 
-.new-button {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  padding: 5px 10px;
-  margin-top: -10px;
-  height: 25px;
-  font-size: 12px;
+.bengkel-stripe {
+  height: 3px;
+  background: linear-gradient(90deg, #c62828 0%, #ef5350 60%, #ffcdd2 100%);
 }
 
-.new-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.new-button:hover:enabled {
-  background-color: #218838;
-}
-
-.form-group {
-  margin-top: 15px;
-  margin-bottom: 10px;
-}
-
-.form-group label {
+.field-label {
   display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  font-size: 12px; /* Adjust the font size */
-  margin: 0; /* Adjust the margin */
+  font-size: 11px;
+  font-weight: 700;
+  color: #4b5563;
+  margin-bottom: 4px;
 }
 
-.form-group input {
-  width: 100%;
-  padding: 4px; /* Adjust the padding */
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 12px; /* Adjust the font size */
-  height: 25px; /* Adjust the height */
+.table-scroll-wrapper {
+  max-height: 320px;
+  overflow-y: auto;
 }
 
-
-.input-with-icon v-icon {
-  cursor: pointer;
-  margin-left: 10px;
+.bengkel-table th {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em;
+  color: #7f1d1d !important;
+  background-color: #fef2f2 !important;
+  border-bottom: 1px solid #fecaca !important;
+  height: 36px !important;
 }
 
-.input-with-icon v-icon:disabled {
-  cursor: not-allowed;
-  color: #cccccc;
-
-}
-
-.flex-container {
-  display: flex;
-  gap: 10px;
-}
-
-.flex-item {
-  flex: 1;
-}
-
-.submit-button {
-  width: 100%;
-  padding: 2px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  height: 25px;
-  font-size: 15px;
-
-}
-
-.submit-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.submit-button:hover:enabled {
-  background-color: #0056b3;
-}
-
-.cart ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.cart li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.cart button {
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  padding: 5px 10px;
-  width: 20%;
-}
-
-.cart button:hover:enabled {
-  background-color: #35b63e;
-}
-
-h3{
-  margin-top: -25px;
-}
-
-h4{
-  margin-top: -15px;
-  margin-left: -10px;
-}
-
-.input-item{
-  width: 88% !important;
-}
-
-.icon-item{
-  width: 7%;
-  margin-left: 16px;
-  
-}
-
-.button-group {
-  display: flex;
-  justify-content: space-between;
-  gap: 0; /* Remove the gap */
-  width: 30%;
-  margin-top: 10px;
-  height: 25px;
-  font-size: 12px;
-  padding: 0;
-}
-
-.button-group button {
-  flex: 1;
-  margin-right: 5px; /* Add a small margin to the right of each button */
-}
-
-.button-group button:last-child {
-  margin-right: 0; /* Remove the margin from the last button */
-}
-
-.cancel-button {
-  width: 100%;
-  padding: 10px;
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-
-.save-button {
-  background-color: #007bff; /* Biru */
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.save-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-
-.small-table thead {
-  background-color: rgb(213, 212, 212); /* Green background */
-  color: white; /* White text */
-  font-weight: bold;
-  text-align: left;
-
-}
-
-
-.small-table thead th {
-  height: 30px !important; /* Set a specific height */
-  border-bottom: 2px solid #ddd;
-  font-size: 13px !important;
-}
-
-/* Style for table body */
-.small-table tbody {
-  background-color: #fff;
-}
-
-.small-table tbody tr:nth-child(even) {
-  background-color: #f2f2f2; /* Light grey background for even rows */
-}
-
-.small-table tbody tr:hover {
-  background-color: #ddd; /* Darker grey background on hover */
-}
-
-.small-table tbody td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  
-}
-
-/* Add some padding and border radius to the table */
-.small-table {
-  width: 100%;
-  border-collapse: collapse;
-  border-radius: 5px;
-  overflow: hidden;
-  overflow-y: auto; /* Enable vertical scrolling */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Add some margin to the table */
-.small-table {
-  margin-top: 20px;
-  
-}
-.cart-body td{
-  height: 30px !important;
+.cart-row td {
   font-size: 12px !important;
-  font-weight: bold !important;
+  height: 36px !important;
+  border-bottom: 1px solid #f5ebeb !important;
 }
 
-
-.cart-body td {
-  font-size: 0.5em;
+.cart-row:hover {
+  background-color: #fff5f5 !important;
 }
 
-.disabled-icon {
-  pointer-events: none;
-  color: #cccccc;
-}
-.customer-text {
-  font-size: 1.0em; /* Ukuran font lebih kecil */
-}
-
-.cart {
-  overflow-y: auto; /* Enable vertical scrolling */
-}
-
-.subtotal-display {
-  background-color: #f9f9f9; /* Light grey background for subtlety */
-  padding: 2px;
+.editable-cell {
+  background-color: #fffafa;
   border-radius: 4px;
-  text-align: center;
-  font-size: 0.93em; /* Slightly larger than normal text */
-  color: #333; /* Dark text color for readability */
-  margin: 10px 0; /* Reduced margin for compactness */
-  border: 4px solid #ddd; /* Light border for definition */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  cursor: text;
+  outline: none;
 }
 
+.editable-cell:focus {
+  background-color: #fee2e2;
+  box-shadow: inset 0 0 0 1px #dc2626;
+}
+
+.subtotal-box {
+  background-color: #fff5f5;
+  border: 1px solid #fecaca;
+}
+
+.kode-red-pill {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pagination-bar,
+.dialog-pagination-bar {
+  background-color: #fffafa;
+  border-top: 1px solid #f1dcdc;
+}
+
+.dialog-pagination-bar {
+  border: 1px solid #f1dcdc;
+}
+
+.page-indicator-box {
+  background-color: #ffffff;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 3px 9px;
+  font-size: 11px;
+  color: #4b5563;
+}
+
+.page-step-btn {
+  border-radius: 6px !important;
+  background-color: #ffffff !important;
+}
+
+.page-nav-btn {
+  border-radius: 6px !important;
+  background-color: #ffffff !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.modal-top-bar {
+  background-color: #ffffff;
+}
+
+.border-list {
+  border: 1px solid #f1dcdc;
+}
+
+.list-hover-red:hover {
+  background-color: #fff5f5 !important;
+  cursor: pointer;
+}
+
+.in-cart-item {
+  background-color: #fafafa !important;
+  opacity: 0.65;
+  cursor: not-allowed !important;
+}
 </style>

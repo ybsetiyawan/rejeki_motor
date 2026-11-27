@@ -788,6 +788,135 @@ const get_report_returCustomer = (request, response) => {
         response.status(200).json(result.rows);
     });
 };
+
+const get_riwayat_item = async (request, response) => {
+    const id = parseInt(request.params.id, 10);
+    if (Number.isNaN(id)) {
+        return response.status(400).json({ message: 'ID item tidak valid' });
+    }
+
+    try {
+        const itemResult = await pool.query(
+            `SELECT id, kode, nama, stok, modal, hpp FROM m_item WHERE id = $1`,
+            [id]
+        );
+
+        if (itemResult.rows.length === 0) {
+            return response.status(404).json({ message: 'Item tidak ditemukan' });
+        }
+
+        const [keluarResult, masukResult] = await Promise.all([
+            pool.query(pgqueri.get_riwayat_keluar_item, [id]),
+            pool.query(pgqueri.get_riwayat_masuk_item, [id]),
+        ]);
+
+        return response.status(200).json({
+            item: itemResult.rows[0],
+            keluar: keluarResult.rows,
+            masuk: masukResult.rows,
+        });
+    } catch (error) {
+        console.error('Error mengambil riwayat item:', error);
+        return response.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+const get_stock_movement = async (request, response) => {
+    try {
+        const {
+            id_item,
+            jenis_mutasi,
+            dateFrom,
+            dateTo,
+            search = '',
+            page = 1,
+            pageSize = 20,
+        } = request.query;
+
+        const itemId = id_item ? parseInt(id_item, 10) : null;
+        if (id_item && Number.isNaN(itemId)) {
+            return response.status(400).json({ message: 'ID item tidak valid' });
+        }
+
+        const pageNum = Math.max(1, parseInt(page, 10) || 1);
+        const sizeNum = Math.min(200, Math.max(1, parseInt(pageSize, 10) || 20));
+        const offset = (pageNum - 1) * sizeNum;
+        const searchTerm = (search || '').toString().trim() || null;
+
+        const startTs = dateFrom ? `${dateFrom} 00:00:00` : null;
+        const endTs = dateTo ? `${dateTo} 23:59:59.999` : null;
+
+        const filterParams = [
+            itemId,
+            jenis_mutasi || null,
+            startTs,
+            endTs,
+        ];
+
+        const [rowsRes, summaryRes] = await Promise.all([
+            pool.query(pgqueri.get_stock_movement_paged, [
+                ...filterParams,
+                sizeNum,
+                offset,
+                searchTerm,
+            ]),
+            pool.query(pgqueri.get_stock_movement_summary, [
+                ...filterParams,
+                searchTerm,
+            ]),
+        ]);
+
+        const rows = rowsRes.rows || [];
+        const totalRows = rows.length > 0 ? Number(rows[0].total_rows) || 0 : 0;
+        const summary = summaryRes.rows[0] || { total_masuk: 0, total_keluar: 0 };
+
+        let saldoAwal = null;
+        if (startTs && itemId) {
+            const beforeRes = await pool.query(
+                `
+                SELECT sisa_stok
+                FROM (${pgqueri.get_stock_movement_base}) sm
+                WHERE sm.id_item = $1 AND sm.tgl_transaksi < $2
+                ORDER BY sm.tgl_transaksi DESC, sm.prioritas_jenis DESC, sm.detail_id DESC
+                LIMIT 1
+                `,
+                [itemId, startTs]
+            );
+
+            if (beforeRes.rows.length > 0) {
+                saldoAwal = Number(beforeRes.rows[0].sisa_stok) || 0;
+            } else if (rows.length > 0) {
+                const first = rows[0];
+                const deltaFirst = (Number(first.qty_masuk) || 0) - (Number(first.qty_keluar) || 0);
+                saldoAwal = (Number(first.sisa_stok) || 0) - deltaFirst;
+            } else {
+                const itemRes = await pool.query(
+                    `SELECT COALESCE(stok, 0)::bigint AS stok FROM m_item WHERE id = $1`,
+                    [itemId]
+                );
+                saldoAwal = itemRes.rows.length > 0 ? Number(itemRes.rows[0].stok) || 0 : 0;
+            }
+        }
+
+        // Bersihkan properti total_rows dari tiap item row agar payload rapi
+        const cleanData = rows.map(({ total_rows, ...rest }) => rest);
+
+        return response.status(200).json({
+            page: pageNum,
+            pageSize: sizeNum,
+            total: totalRows,
+            total_masuk: Number(summary.total_masuk) || 0,
+            total_keluar: Number(summary.total_keluar) || 0,
+            saldo_awal: saldoAwal,
+            data: cleanData,
+        });
+    } catch (error) {
+        console.error('Error mengambil stock movement:', error);
+        return response.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+
 module.exports = {
     get_m_customer,
     add_m_customer,
@@ -824,5 +953,7 @@ module.exports = {
     get_report_trans_receipt,
     get_report_returSupplier,
     get_report_returCustomer,
-    get_item_min5
+    get_item_min5,
+    get_riwayat_item,
+    get_stock_movement
 };

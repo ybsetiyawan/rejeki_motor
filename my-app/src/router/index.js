@@ -19,6 +19,7 @@ import ReturCustomer from '../components/transaction/ReturCustomer.vue'
 import ReportReturSupplier from '../components/report/ReportReturSupllier.vue'
 import ReportReturCustomer from '../components/report/ReportReturCustomer.vue'
 import ReportStok from '../components/report/ReportStok.vue'
+import ReportStokMovement from '../components/report/ReportStokMovement.vue'
 
 Vue.use(VueRouter);
 
@@ -124,6 +125,14 @@ const routes = [
     component: ReportStok,
     meta: { requiresAuth: true, requiresRole: [1, 2] }
   },
+
+   {
+    path: '/report_stokmovement',
+    name: 'report_stokmovement',
+    component: ReportStokMovement,
+    meta: { requiresAuth: true, requiresRole: [1, 2] }
+  },
+
 ];
 
 const router = new VueRouter({

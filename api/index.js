@@ -34,6 +34,7 @@ app.post("/m_jenis_item", db.create_m_jenis_item);
 app.put("/m_jenis_item/:id", db.update_m_jenis_item);
 app.delete("/m_jenis_item/:id", db.delete_m_jenis_item);
 
+app.get("/m_item/:id/riwayat", db.get_riwayat_item);
 app.get("/m_item", db.get_all_item);
 app.post("/m_item", db.add_m_item);
 app.put("/m_item/:id", db.update_m_item);
@@ -74,6 +75,8 @@ app.get("/t_transaksi/report", db.get_report_transaksi);
 app.get("/t_trans_receipt/report", db.get_report_trans_receipt);
 app.get("/t_retur_supplier/report", db.get_report_returSupplier);
 app.get("/t_retur_customer/report", db.get_report_returCustomer);
+app.get("/report_stockmovement", db.get_stock_movement);
+app.get("/stock_movement", db.get_stock_movement);
 
 
 const port = process.env.PORT || 4000;

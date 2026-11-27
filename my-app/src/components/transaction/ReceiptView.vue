@@ -1,171 +1,530 @@
 <template>
-  <div class="container">
-    <form @submit.prevent="addToCart" class="receipt-form">
-      <div class="form-header">
-        <h3>Form Penerimaan Barang</h3>
-        <button type="button" class="new-button" @click="activateForm" :disabled="formActive">New</button>
-        <v-dialog v-model="showItemList" max-width="700px" class="dialog">
-          <v-card>
-            <v-card-title>
-              <span class="headline">Daftar Barang</span>
-                </v-card-title>
-                <v-card-text>
-                  <v-btn
-                    color="blue"
-                    elevation="8"
-                    @click="searchItems"
-                    :disabled="!searchQuery"
-                    class="font"
-                    x-small
-                    >
-                    <v-icon>mdi-magnify</v-icon>
-                  </v-btn>
-                  <!-- <v-text-field v-model="searchQuery" label="Search Item" clearable></v-text-field> -->
-                  <v-text-field
-                    class="font"
-                    label="Cari Berdasarkan Kode atau Nama Item"
-                    single-line
-                    hide-details
-                    v-model="searchQuery"
-                    >
-                  </v-text-field>
-                  <v-list>
-                    <v-list-item 
-                      v-for="item in items" 
-                      :key="item.id"
-                      @click="selectItem(item)"
-                      :disabled="isItemIncart(item)"
-                      >
-                      <v-list-item-content>
-                        <v-list-item-title class="customer-text">{{ item.kode + ' - ' + item.nama + ' - ' + item.modal + ' - ' + parseInt(item.stok) }}</v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </v-list>
-                  <v-pagination
-                    class="custom-pagination"
-                    v-model="currentPage"
-                    :length="pageCount"
-                    :total-visible="7"
-                    @input="loadItems">
-                  </v-pagination>
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="closeCustomerList">Close</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-        <v-dialog v-model="showSupplierList" max-width="700px" class="supplier-dialog">
-          <v-card>
-            <v-card-title>
-              <span class="headline">Daftar Supplier</span>
-            </v-card-title>
-            <v-card-text>
-              <v-text-field v-model="searchSupplierQuery" label="Search Supplier" clearable></v-text-field>
-              <v-list>
-                <v-list-item 
-                  v-for="supplier in filteredSuppliers" 
-                  :key="supplier.id"
-                  @click="selectSupplier(supplier)"
-                >
-                  <v-list-item-content>
-                    <v-list-item-title class="supplier-text">{{ supplier.kode + ' - ' + supplier.nama }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list>
-              
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="closeSupplierList">Close</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </div>
-      <div class="form-group flex-container">
-        <div class="flex-item">
-          <label for="tanggal">Tanggal</label>
-          <input type="date" v-model="receipt.tanggal" :disabled="!formActive">
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="supplier">Supplier:</label>
-        <div class="input-with-icon">
-          <input class="input-item" type="text" id="supplier" v-model="receipt.supplier" required disabled/>
-          <v-icon 
-            class="icon-item" 
-            @click="openSupplierList" 
-            :class="{ 'disabled-icon': isSupplierSearchDisabled() }"
-            :disabled="isSupplierSearchDisabled() || !formActive"
-          >mdi-magnify</v-icon>
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="alamat">Alamat:</label>
-        <input type="text" id="alamat" v-model="receipt.alamat" required disabled />
-      </div>
-      <div class="form-group">
-        <label for="itemName">Nama Item:</label>
-        <div class="input-with-icon">
-          <input class="input-item" type="text" id="itemName" v-model="receipt.itemName" required disabled />
-          <v-icon class="icon-item" @click="openItemList" :disabled="!formActive">mdi-magnify</v-icon>
-        </div>
-      </div>
-      <div class="form-group flex-container">
-        <div class="flex-item">
-          <label for="itemName">Kode Item:</label>
-          <input type="text" id="itemCode" v-model="receipt.itemCode" required disabled />
-        </div>
-        <div class="flex-item">
-          <label for="quantity">Qty:</label>
-          <input type="number" id="quantity" min="1" v-model="receipt.quantity" required :disabled="!formActive" />
-        </div> <div class="flex-item">
-          <label for="uom">Uom:</label>
-          <input type="text" id="uom" v-model="receipt.uom" required disabled />
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="keterangan">Keterangan:</label>
-        <input type="text" id="keterangan" v-model="receipt.keterangan" required :disabled="!formActive" autocomplete="off"/>
-      </div>
-      <button type="submit" class="submit-button" :disabled="!formActive">Add to Cart</button>
-    </form>
+  <v-row dense class="pa-2">
+    <!-- Kolom Kiri: Form Penerimaan Barang -->
+    <v-col cols="12" lg="6" class="mb-3 mb-lg-0">
+      <v-card class="bengkel-card rounded-lg elevation-2 h-full">
+        <!-- Header Form -->
+        <div class="bengkel-header px-5 pt-4 pb-3">
+          <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center">
+              <v-avatar color="red lighten-5" size="40" class="mr-3 bengkel-avatar-ring">
+                <v-icon color="red darken-2">mdi-truck-plus-outline</v-icon>
+              </v-avatar>
+              <div>
+                <div class="text-subtitle-1 font-weight-bold grey--text text--darken-4">
+                  Form Penerimaan Barang
+                </div>
+                <div class="text-caption grey--text text--darken-1">
+                  Input transaksi barang masuk dari supplier
+                </div>
+              </div>
+            </div>
 
-    <div class="cart">
-      <h4>Cart</h4>
-      <v-simple-table class="small-table">
-        <thead>
-          <tr>
-            <th>Kode Item</th>
-            <th>Nama Item</th>
-            <th>Uom</th>
-            <th>Qty</th>
-            <th class="delete-column"></th>
-          </tr>
-        </thead>
-        <tbody class="cart-body">
-          <tr v-for="(item, index) in cart" :key="index">
-            <td>{{ item.itemCode }}</td>
-            <td>{{ item.itemName }}</td>
-            <td>{{ item.uom }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>
-              <v-icon 
-                @click="removeFromCart(index)"
-                color="red"
-                size="15px"
-              >mdi-delete</v-icon>
-            </td>
-          </tr>
-        </tbody>
-      </v-simple-table>
-      <div class="button-group" v-if="cart.length || formActive">
-        <button @click="submitReceipt" class="save-button" :disabled="!saveReceipt">Save</button>
-        <button v-show="formActive" @click="cancelReceipt" class="cancel-button">Cancel</button>
-      </div>  
-    </div>
+            <v-btn
+              small
+              depressed
+              color="red darken-2"
+              class="white--text font-weight-medium text-none px-4"
+              :disabled="formActive"
+              @click="activateForm"
+            >
+              <v-icon left small>mdi-plus</v-icon>
+              New
+            </v-btn>
+          </div>
+        </div>
+
+        <div class="bengkel-stripe"></div>
+
+        <!-- Isi Form -->
+        <v-card-text class="pa-5">
+          <form @submit.prevent="addToCart">
+            <v-row dense>
+              <v-col cols="12" sm="5">
+                <label class="field-label">Tanggal</label>
+                <v-text-field
+                  v-model="receipt.tanggal"
+                  type="date"
+                  outlined
+                  dense
+                  hide-details
+                  color="red darken-2"
+                  :disabled="!formActive"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12" sm="7">
+                <label class="field-label">Supplier</label>
+                <v-text-field
+                  v-model="receipt.supplier"
+                  placeholder="Pilih supplier..."
+                  outlined
+                  dense
+                  hide-details
+                  readonly
+                  color="red darken-2"
+                  :disabled="!formActive || isSupplierSearchDisabled()"
+                  @click="!isSupplierSearchDisabled() && formActive ? openSupplierList() : null"
+                >
+                  <template v-slot:append>
+                    <v-icon
+                      small
+                      :color="!formActive || isSupplierSearchDisabled() ? 'grey lighten-1' : 'red darken-2'"
+                      style="cursor: pointer;"
+                      @click="openSupplierList"
+                    >
+                      mdi-magnify
+                    </v-icon>
+                  </template>
+                </v-text-field>
+              </v-col>
+
+              <v-col cols="12" class="mt-2">
+                <label class="field-label">Alamat Supplier</label>
+                <v-text-field
+                  v-model="receipt.alamat"
+                  placeholder="Alamat otomatis terisi..."
+                  outlined
+                  dense
+                  hide-details
+                  disabled
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12" class="mt-2">
+                <label class="field-label">Nama Item</label>
+                <v-text-field
+                  v-model="receipt.itemName"
+                  placeholder="Cari & pilih item..."
+                  outlined
+                  dense
+                  hide-details
+                  readonly
+                  color="red darken-2"
+                  :disabled="!formActive"
+                  @click="formActive ? openItemList() : null"
+                >
+                  <template v-slot:append>
+                    <v-icon
+                      small
+                      :color="!formActive ? 'grey lighten-1' : 'red darken-2'"
+                      style="cursor: pointer;"
+                      @click="openItemList"
+                    >
+                      mdi-magnify
+                    </v-icon>
+                  </template>
+                </v-text-field>
+              </v-col>
+
+              <v-col cols="12" sm="4" class="mt-2">
+                <label class="field-label">Kode Item</label>
+                <v-text-field
+                  v-model="receipt.itemCode"
+                  outlined
+                  dense
+                  hide-details
+                  disabled
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="6" sm="4" class="mt-2">
+                <label class="field-label">Qty</label>
+                <v-text-field
+                  v-model.number="receipt.quantity"
+                  type="number"
+                  min="1"
+                  outlined
+                  dense
+                  hide-details
+                  color="red darken-2"
+                  :disabled="!formActive"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="6" sm="4" class="mt-2">
+                <label class="field-label">Uom</label>
+                <v-text-field
+                  v-model="receipt.uom"
+                  outlined
+                  dense
+                  hide-details
+                  disabled
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12" class="mt-2">
+                <label class="field-label">Keterangan</label>
+                <v-text-field
+                  v-model="receipt.keterangan"
+                  placeholder="Catatan penerimaan barang..."
+                  outlined
+                  dense
+                  hide-details
+                  color="red darken-2"
+                  autocomplete="off"
+                  :disabled="!formActive"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12" class="mt-4">
+                <v-btn
+                  type="submit"
+                  block
+                  small
+                  depressed
+                  color="red darken-2"
+                  class="white--text font-weight-medium text-none py-4"
+                  :disabled="!formActive"
+                >
+                  <v-icon left small>mdi-cart-plus</v-icon>
+                  Add to Cart
+                </v-btn>
+              </v-col>
+            </v-row>
+          </form>
+        </v-card-text>
+      </v-card>
+    </v-col>
+
+    <!-- Kolom Kanan: Cart Barang Diterima -->
+    <v-col cols="12" lg="6">
+      <v-card class="bengkel-card rounded-lg elevation-2 h-full d-flex flex-column">
+        <div class="bengkel-header px-5 pt-4 pb-3">
+          <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center">
+              <v-avatar color="red lighten-5" size="40" class="mr-3 bengkel-avatar-ring">
+                <v-icon color="red darken-2">mdi-cart-check</v-icon>
+              </v-avatar>
+              <div>
+                <div class="d-flex align-center">
+                  <span class="text-subtitle-1 font-weight-bold grey--text text--darken-4 mr-2">
+                    Daftar Barang Diterima (Cart)
+                  </span>
+                  <v-chip x-small label color="red lighten-5" text-color="red darken-3" class="font-weight-bold">
+                    {{ cart.length }} Item
+                  </v-chip>
+                </div>
+                <div class="text-caption grey--text text--darken-1">
+                  Total Qty Masuk: <strong class="grey--text text--darken-4">{{ totalCartQty }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bengkel-stripe"></div>
+
+        <v-card-text class="pa-4 flex-grow-1">
+          <div class="table-scroll-wrapper">
+            <v-simple-table class="bengkel-table" fixed-header>
+              <thead>
+                <tr>
+                  <th class="text-left" style="width: 110px;">KODE</th>
+                  <th class="text-left">NAMA ITEM</th>
+                  <th class="text-center" style="width: 80px;">UOM</th>
+                  <th class="text-right" style="width: 80px;">QTY</th>
+                  <th class="text-center" style="width: 60px;">AKSI</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(item, index) in cart" :key="index" class="cart-row">
+                  <td>
+                    <span class="kode-red-pill">{{ item.itemCode }}</span>
+                  </td>
+                  <td class="font-weight-bold grey--text text--darken-4">
+                    {{ item.itemName }}
+                  </td>
+                  <td class="text-center grey--text text--darken-2">
+                    {{ item.uom || '-' }}
+                  </td>
+                  <td class="text-right font-weight-bold">
+                    {{ item.quantity }}
+                  </td>
+                  <td class="text-center">
+                    <v-btn
+                      icon
+                      x-small
+                      color="red darken-2"
+                      @click="removeFromCart(index)"
+                      title="Hapus dari Cart"
+                    >
+                      <v-icon small>mdi-delete-outline</v-icon>
+                    </v-btn>
+                  </td>
+                </tr>
+
+                <tr v-if="cart.length === 0">
+                  <td colspan="5" class="text-center py-10 grey--text">
+                    <v-icon large color="red lighten-3" class="mb-2">mdi-cart-off</v-icon>
+                    <div>Belum ada item di dalam cart.</div>
+                  </td>
+                </tr>
+              </tbody>
+            </v-simple-table>
+          </div>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <!-- Tombol Simpan / Batal -->
+        <div v-if="cart.length || formActive" class="pagination-bar px-5 py-3 d-flex justify-end">
+          <v-btn
+            v-show="formActive"
+            small
+            outlined
+            color="grey darken-2"
+            class="text-none font-weight-medium mr-2"
+            @click="cancelReceipt"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            small
+            depressed
+            color="red darken-2"
+            class="white--text font-weight-medium text-none px-4"
+            :disabled="!saveReceipt || cart.length === 0"
+            @click="submitReceipt"
+          >
+            <v-icon left small>mdi-content-save-outline</v-icon>
+            Save
+          </v-btn>
+        </div>
+      </v-card>
+    </v-col>
+
+    <!-- Dialog Daftar Barang -->
+    <v-dialog v-model="showItemList" max-width="760px">
+      <v-card class="rounded-lg">
+        <v-card-title class="modal-top-bar px-5 py-4">
+          <div class="d-flex align-center">
+            <v-avatar color="red lighten-5" size="36" class="mr-3 bengkel-avatar-ring">
+              <v-icon color="red darken-2" small>mdi-package-variant</v-icon>
+            </v-avatar>
+            <div>
+              <div class="text-subtitle-1 font-weight-bold grey--text text--darken-4">
+                Daftar Barang
+              </div>
+              <div class="text-caption grey--text text--darken-1">
+                Item yang sudah masuk ke cart otomatis ditandai &amp; dinonaktifkan
+              </div>
+            </div>
+          </div>
+          <v-spacer></v-spacer>
+          <v-btn icon small color="grey darken-1" @click="closeItemList">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        <div class="bengkel-stripe"></div>
+
+        <v-card-text class="pa-5">
+          <v-text-field
+            v-model="searchQuery"
+            label="Cari berdasarkan kode atau nama item..."
+            outlined
+            dense
+            clearable
+            hide-details
+            color="red darken-2"
+            class="mb-3"
+            @keyup.enter="searchItems"
+            @click:clear="clearItemSearch"
+          >
+            <template v-slot:append>
+              <v-btn
+                x-small
+                depressed
+                color="red darken-2"
+                class="white--text text-none px-3"
+                :disabled="!searchQuery"
+                @click="searchItems"
+              >
+                Cari
+              </v-btn>
+            </template>
+          </v-text-field>
+
+          <v-list dense class="border-list rounded" style="max-height: 360px; overflow-y: auto;">
+            <v-list-item
+              v-for="item in items"
+              :key="item.id"
+              :disabled="isItemIncart(item)"
+              :class="['list-hover-red', { 'in-cart-item': isItemIncart(item) }]"
+              @click="!isItemIncart(item) && selectItem(item)"
+            >
+              <v-list-item-content>
+                <v-list-item-title class="d-flex flex-wrap align-center">
+                  <span class="kode-red-pill mr-2">{{ item.kode }}</span>
+                  <span class="font-weight-bold grey--text text--darken-4 mr-2">
+                    {{ item.nama }}
+                  </span>
+
+                  <v-chip
+                    v-if="isItemIncart(item)"
+                    x-small
+                    label
+                    color="red darken-2"
+                    text-color="white"
+                    class="font-weight-bold mr-auto"
+                  >
+                    <v-icon x-small left>mdi-check</v-icon>
+                    Di Cart
+                  </v-chip>
+                  <span v-else class="mr-auto"></span>
+
+                  <span class="text-caption grey--text text--darken-2 mr-3">
+                    Modal: <strong>{{ item.modal }}</strong>
+                  </span>
+                  <v-chip x-small label color="red lighten-5" text-color="red darken-3" class="font-weight-bold">
+                    Stok: {{ parseInt(item.stok) }}
+                  </v-chip>
+                </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item v-if="!items || items.length === 0">
+              <v-list-item-content class="text-center py-6 grey--text">
+                Tidak ada data barang yang ditemukan.
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+
+          <!-- Paginasi Ringkas Merah Bengkel -->
+          <div class="dialog-pagination-bar mt-3 px-3 py-2 rounded d-flex flex-wrap align-center justify-space-between">
+            <div class="text-caption grey--text text--darken-2">
+              Total <strong class="grey--text text--darken-4">{{ totalItems }}</strong> item
+            </div>
+
+            <div class="d-flex align-center">
+              <v-btn
+                icon
+                x-small
+                outlined
+                color="red darken-2"
+                class="mr-1 page-nav-btn"
+                :disabled="currentPage <= 1"
+                @click="goToItemPage(1)"
+                title="Halaman Pertama"
+              >
+                <v-icon x-small>mdi-chevron-double-left</v-icon>
+              </v-btn>
+
+              <v-btn
+                x-small
+                outlined
+                color="red darken-2"
+                class="text-none font-weight-medium mr-1 page-step-btn"
+                :disabled="currentPage <= 1"
+                @click="goToItemPage(currentPage - 1)"
+              >
+                <v-icon left x-small>mdi-chevron-left</v-icon>
+                Prev
+              </v-btn>
+
+              <div class="page-indicator-box mx-1">
+                <span>Hal</span>
+                <strong class="red--text text--darken-3 mx-1">{{ currentPage }}</strong>
+                <span>/ {{ pageCount }}</span>
+              </div>
+
+              <v-btn
+                x-small
+                outlined
+                color="red darken-2"
+                class="text-none font-weight-medium ml-1 page-step-btn"
+                :disabled="currentPage >= pageCount"
+                @click="goToItemPage(currentPage + 1)"
+              >
+                Next
+                <v-icon right x-small>mdi-chevron-right</v-icon>
+              </v-btn>
+
+              <v-btn
+                icon
+                x-small
+                outlined
+                color="red darken-2"
+                class="ml-1 page-nav-btn"
+                :disabled="currentPage >= pageCount"
+                @click="goToItemPage(pageCount)"
+                title="Halaman Terakhir"
+              >
+                <v-icon x-small>mdi-chevron-double-right</v-icon>
+              </v-btn>
+            </div>
+          </div>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions class="px-5 py-3 grey lighten-5">
+          <v-spacer></v-spacer>
+          <v-btn text color="grey darken-2" class="text-none" @click="closeItemList">Tutup</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog Daftar Supplier -->
+    <v-dialog v-model="showSupplierList" max-width="680px">
+      <v-card class="rounded-lg">
+        <v-card-title class="modal-top-bar px-5 py-4">
+          <div class="d-flex align-center">
+            <v-avatar color="red lighten-5" size="36" class="mr-3 bengkel-avatar-ring">
+              <v-icon color="red darken-2" small>mdi-truck-outline</v-icon>
+            </v-avatar>
+            <span class="text-subtitle-1 font-weight-bold grey--text text--darken-4">
+              Daftar Supplier
+            </span>
+          </div>
+          <v-spacer></v-spacer>
+          <v-btn icon small color="grey darken-1" @click="closeSupplierList">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        <div class="bengkel-stripe"></div>
+
+        <v-card-text class="pa-5">
+          <v-text-field
+            v-model="searchSupplierQuery"
+            label="Cari kode atau nama supplier..."
+            outlined
+            dense
+            clearable
+            hide-details
+            color="red darken-2"
+            class="mb-3"
+          ></v-text-field>
+
+          <v-list dense class="border-list rounded" style="max-height: 320px; overflow-y: auto;">
+            <v-list-item
+              v-for="supplier in filteredSuppliers"
+              :key="supplier.id"
+              class="list-hover-red"
+              @click="selectSupplier(supplier)"
+            >
+              <v-list-item-content>
+                <v-list-item-title class="d-flex align-center">
+                  <span class="kode-red-pill mr-2">{{ supplier.kode }}</span>
+                  <span class="font-weight-bold grey--text text--darken-4">{{ supplier.nama }}</span>
+                </v-list-item-title>
+                <v-list-item-subtitle v-if="supplier.alamat" class="text-caption mt-1">
+                  {{ supplier.alamat }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions class="px-5 py-3 grey lighten-5">
+          <v-spacer></v-spacer>
+          <v-btn text color="grey darken-2" class="text-none" @click="closeSupplierList">Tutup</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <ReceiptDocView v-if="showReceiptDoc" :receipt="submitReceiptData" :dialog="dialog" />
-  </div>
+  </v-row>
 </template>
 
 <script>
@@ -174,521 +533,370 @@ import { loadItems, loadSuppliers } from '../../utils/utils';
 import ReceiptDocView from '../print/ReceiptDocView.vue';
 
 export default {
-    components: { ReceiptDocView },
-    data() {
-        return {
-            receipt: {
-                itemName: '',
-                itemCode: '',
-                idItem: '',
-                uom: '',
-                quantity: 0,
-                supplier: '',
-                idSupplier: '',
-                alamat: '', // Added alamat property
-                keterangan: '',
-                kodeSupplier: '',
-                no_hp: '',
-                email: '',
-                tanggal: '',
-            },
-            initialKeterangan: '', // Add initialKeterangan here
-            cart: [],
-            formActive: false,
-            showItemList: false,
-            items: [],
-            searchQuery: '',
-            showSupplierList: false,
-            suppliers: [],
-            searchSupplierQuery: '',
-            showReceiptDoc: false,
-            dialog: false,
-            submitReceiptData: {},
-            kodeReceipt: '',
-            noReceipt: '',
-            saveReceipt: false,
-            currentPage: 1,
-            pageSize: 10,
-            totalItems: 0, 
-
-        };
-    },
-    watch: {
-        receipt: {
-            handler(newVal) {
-                if (newVal.keterangan) {
-                    this.receipt.keterangan = newVal.keterangan.toUpperCase();
-                }
-            },
-            deep: true
+  name: 'ReceiptFormView',
+  components: { ReceiptDocView },
+  data() {
+    return {
+      receipt: {
+        itemName: '',
+        itemCode: '',
+        idItem: '',
+        uom: '',
+        quantity: 0,
+        supplier: '',
+        idSupplier: '',
+        alamat: '',
+        keterangan: '',
+        kodeSupplier: '',
+        no_hp: '',
+        email: '',
+        tanggal: '',
+      },
+      initialKeterangan: '',
+      cart: [],
+      formActive: false,
+      showItemList: false,
+      items: [],
+      searchQuery: '',
+      showSupplierList: false,
+      suppliers: [],
+      searchSupplierQuery: '',
+      showReceiptDoc: false,
+      dialog: false,
+      submitReceiptData: {},
+      kodeReceipt: '',
+      noReceipt: '',
+      saveReceipt: false,
+      currentPage: 1,
+      pageSize: 10,
+      totalItems: 0,
+    };
+  },
+  watch: {
+    receipt: {
+      handler(newVal) {
+        if (newVal.keterangan) {
+          this.receipt.keterangan = newVal.keterangan.toUpperCase();
         }
+      },
+      deep: true,
     },
-    computed: {
-        // filteredItems() {
-        //     return this.items.filter(item => item.nama.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        //         item.kode.toLowerCase().includes(this.searchQuery.toLowerCase()));
-        // },
-        filteredSuppliers() {
-            return this.suppliers.filter(supplier => supplier.nama.toLowerCase().includes(this.searchSupplierQuery.toLowerCase()) ||
-                supplier.kode.toLowerCase().includes(this.searchSupplierQuery.toLowerCase()));
-        },
-        pageCount() {
-        return Math.ceil(this.totalItems / this.pageSize);
-        }
+    cart(newCart) {
+      if (!newCart.length) {
+        this.saveReceipt = false;
+      }
     },
-    methods: {
-       loadItems() {
-       return loadItems(this.currentPage, this.pageSize, this.searchQuery)
-          .then(data => {
-            this.items = data.items;
-            this.totalItems = data.total
-          })
-          .catch(error => console.error('Error Loading Items:', error))
-       },
-        loadSuppliers() {
-            loadSuppliers().then(suppliers => {
-                this.suppliers = suppliers || [];
-            });
-        },
-        async activateForm() {
-            this.formActive = true;
-            this.loadItems();
-            this.loadSuppliers();
-            this.initialKeterangan = this.receipt.keterangan; // Save initial keterangan
-            // await this.fetchLastNoReceipt();
-        },
-        addToCart() {
-          if (!this.receipt.tanggal || !this.receipt.itemName) {
-            alert('Tanggal belum diisi atau item belum dipilih')
-            return;
-          }
-            if (this.formActive) {
-                this.cart.push({ ...this.receipt });
-                this.receipt = {
-                    itemName: '',
-                    itemCode: '',
-                    uom: '',
-                    quantity: 0,
-                    supplier: this.receipt.supplier, // Preserve current supplier
-                    alamat: this.receipt.alamat, // Preserve current alamat
-                    keterangan: this.receipt.keterangan, // Preserve current keterangan
-                    email: this.receipt.email,
-                    no_hp: this.receipt.no_hp,
-                    kodeSupplier: this.receipt.kodeSupplier,
-                    idSupplier: this.receipt.idSupplier,
-                    tanggal: this.receipt.tanggal
-                };
-                this.saveReceipt = true;
-                // Keep the form active to allow adding more items
-                // console.log('Before submit data:', this.receipt);
-            }
-        },
-        isItemIncart(item) {
-            return this.cart.some(cartItem => cartItem.itemCode === item.kode);
-        },
-        isSupplierSearchDisabled() {
-            return this.cart.length > 0 ;
-        },
-        removeFromCart(index) {
-            this.cart.splice(index, 1);
-        },
-        async submitReceipt() {
-            const id_supplier = this.receipt.idSupplier;
-            const tanggal = this.receipt.tanggal;
-            const keterangan = this.receipt.keterangan;
-            const cart = this.cart.map(item => ({
-                id_item: item.idItem,
-                qty: item.quantity,
-                uom: item.uom,
-                itemCode: item.itemCode,
-                itemName: item.itemName
-            }));
-
-            try {
-              
-            console.log('Saving transaction with data:', {
-              id_supplier,
-              tanggal,
-              keterangan,
-              cart
-            });
-
-                const response = await api.post('/t_trans_receipt', {
-                    id_supplier: id_supplier,
-                    tanggal: tanggal,
-                    keterangan: keterangan,
-                    detail: cart,
-                });
-
-                // Log the response to check its structure
-                // console.log('API Response:', response.data);
-
-                this.noReceipt = response.data.no_receipt;
-                this.kodeReceipt = this.noReceipt;
-                // console.log('noReceipt:', this.noReceipt);
-                // console.log('kodeReceipt:', this.kodeReceipt);
-                // console.log('tanggal:', this.receipt.tanggal)
-
-                alert('Data berhasil disimpan');
-                this.submitReceiptData = {
-                    kodeReceipt: this.noReceipt, // Use no_receipt for kodeReceipt
-                    kodeSupplier: this.receipt.kodeSupplier,
-                    keterangan: this.receipt.keterangan,
-                    namaSupplier: this.receipt.supplier,
-                    alamat: this.receipt.alamat,
-                    no_hp: this.receipt.no_hp,
-                    email: this.receipt.email,
-                    tanggal: this.receipt.tanggal,
-                    items: cart,
-                };
-                this.showReceiptDoc = true;
-                this.dialog = true;
-                this.cancelReceipt();
-            } catch (error) {
-                console.error(error);
-            }
-        },
-        cancelReceipt() {
-            this.cart = [];
-            this.formActive = false;
-            this.receipt = {
-                itemName: '',
-                itemCode: '',
-                idItem: '',
-                uom: '',
-                quantity: 0,
-                supplier: '',
-                alamat: '', // Reset alamat
-                keterangan: this.initialKeterangan, // Restore initial keterangan
-                date: '',
-                idSupplier: '',
-                tanggal: '',
-            };
-            this.saveReceipt = false;
-        },
-        selectItem(item) {
-            this.receipt.idItem = item.id; // Set the id of the selected item
-            this.receipt.itemName = item.nama;
-            this.receipt.itemCode = item.kode;
-            this.receipt.uom = item.satuan_nama;
-            this.showItemList = false;
-        },
-        closeCustomerList() {
-            this.showItemList = false;
-        },
-
-        
-        openItemList() {
-            if (this.formActive) {
-                this.showItemList = true;
-            }
-        },
-        openSupplierList() {
-            if (!this.isSupplierSearchDisabled()) {
-                this.showSupplierList = true;
-                this.loadSuppliers();
-            }
-        },
-        closeSupplierList() {
-            this.showSupplierList = false;
-        },
-        selectSupplier(supplier) {
-            this.receipt.supplier = supplier.nama;
-            this.receipt.alamat = supplier.alamat; // Set the supplier's address
-            this.receipt.idSupplier = supplier.id;
-            this.receipt.kodeSupplier = supplier.kode;
-            this.receipt.no_hp = supplier.no_hp;
-            this.receipt.email = supplier.email;
-            this.showSupplierList = false;
-        // console.log('Selected Supplier:', supplier);
-        },
-        searchItems() {
-          this.currentPage = 1;
-          this.loadItems().then(() => {
-            if (this.items.length === 0) {
-              alert('Tidak ada item yang ditemukan.');
-            }
+  },
+  computed: {
+    filteredSuppliers() {
+      const q = (this.searchSupplierQuery || '').toLowerCase();
+      return this.suppliers.filter(
+        supplier =>
+          (supplier.nama && supplier.nama.toLowerCase().includes(q)) ||
+          (supplier.kode && supplier.kode.toLowerCase().includes(q))
+      );
+    },
+    pageCount() {
+      return Math.max(1, Math.ceil(this.totalItems / this.pageSize));
+    },
+    totalCartQty() {
+      return this.cart.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
+    },
+  },
+  methods: {
+    loadItems() {
+      return loadItems(this.currentPage, this.pageSize, this.searchQuery)
+        .then(data => {
+          this.items = data.items;
+          this.totalItems = data.total;
+        })
+        .catch(error => console.error('Error Loading Items:', error));
+    },
+    goToItemPage(page) {
+      const target = Math.min(Math.max(1, page), this.pageCount);
+      if (target === this.currentPage) return;
+      this.currentPage = target;
+      this.loadItems();
+    },
+    loadSuppliers() {
+      loadSuppliers().then(suppliers => {
+        this.suppliers = suppliers || [];
       });
-    }
-        
-    }
+    },
+    async activateForm() {
+      this.formActive = true;
+      this.loadItems();
+      this.loadSuppliers();
+      this.initialKeterangan = this.receipt.keterangan;
+    },
+    addToCart() {
+      if (!this.receipt.tanggal || !this.receipt.itemName) {
+        alert('Tanggal belum diisi atau item belum dipilih');
+        return;
+      }
+      if (!this.receipt.quantity || Number(this.receipt.quantity) <= 0) {
+        alert('Qty harus lebih dari 0');
+        return;
+      }
+      if (this.formActive) {
+        this.cart.push({ ...this.receipt });
+        this.receipt = {
+          itemName: '',
+          itemCode: '',
+          idItem: '',
+          uom: '',
+          quantity: 0,
+          supplier: this.receipt.supplier,
+          alamat: this.receipt.alamat,
+          keterangan: this.receipt.keterangan,
+          email: this.receipt.email,
+          no_hp: this.receipt.no_hp,
+          kodeSupplier: this.receipt.kodeSupplier,
+          idSupplier: this.receipt.idSupplier,
+          tanggal: this.receipt.tanggal,
+        };
+        this.saveReceipt = true;
+      }
+    },
+    isItemIncart(item) {
+      return this.cart.some(
+        cartItem =>
+          (cartItem.idItem && item.id && cartItem.idItem === item.id) ||
+          (cartItem.itemCode && item.kode && cartItem.itemCode === item.kode)
+      );
+    },
+    isSupplierSearchDisabled() {
+      return this.cart.length > 0;
+    },
+    removeFromCart(index) {
+      this.cart.splice(index, 1);
+    },
+    async submitReceipt() {
+      const id_supplier = this.receipt.idSupplier;
+      const tanggal = this.receipt.tanggal;
+      const keterangan = this.receipt.keterangan;
+      const cart = this.cart.map(item => ({
+        id_item: item.idItem,
+        qty: item.quantity,
+        uom: item.uom,
+        itemCode: item.itemCode,
+        itemName: item.itemName,
+      }));
+
+      try {
+        const response = await api.post('/t_trans_receipt', {
+          id_supplier: id_supplier,
+          tanggal: tanggal,
+          keterangan: keterangan,
+          detail: cart,
+        });
+
+        this.noReceipt = response.data.no_receipt;
+        this.kodeReceipt = this.noReceipt;
+
+        alert('Data berhasil disimpan');
+        this.submitReceiptData = {
+          kodeReceipt: this.noReceipt,
+          kodeSupplier: this.receipt.kodeSupplier,
+          keterangan: this.receipt.keterangan,
+          namaSupplier: this.receipt.supplier,
+          alamat: this.receipt.alamat,
+          no_hp: this.receipt.no_hp,
+          email: this.receipt.email,
+          tanggal: this.receipt.tanggal,
+          items: cart,
+        };
+        this.showReceiptDoc = true;
+        this.dialog = true;
+        this.cancelReceipt();
+      } catch (error) {
+        console.error(error);
+        alert('Gagal menyimpan data penerimaan barang.');
+      }
+    },
+    cancelReceipt() {
+      this.cart = [];
+      this.formActive = false;
+      this.receipt = {
+        itemName: '',
+        itemCode: '',
+        idItem: '',
+        uom: '',
+        quantity: 0,
+        supplier: '',
+        alamat: '',
+        keterangan: this.initialKeterangan,
+        idSupplier: '',
+        kodeSupplier: '',
+        no_hp: '',
+        email: '',
+        tanggal: '',
+      };
+      this.saveReceipt = false;
+    },
+    selectItem(item) {
+      if (this.isItemIncart(item)) return;
+      this.receipt.idItem = item.id;
+      this.receipt.itemName = item.nama;
+      this.receipt.itemCode = item.kode;
+      this.receipt.uom = item.satuan_nama;
+      this.showItemList = false;
+    },
+    closeItemList() {
+      this.showItemList = false;
+    },
+    openItemList() {
+      if (this.formActive) {
+        this.showItemList = true;
+        this.loadItems();
+      }
+    },
+    openSupplierList() {
+      if (this.formActive && !this.isSupplierSearchDisabled()) {
+        this.showSupplierList = true;
+        this.loadSuppliers();
+      }
+    },
+    closeSupplierList() {
+      this.showSupplierList = false;
+    },
+    selectSupplier(supplier) {
+      this.receipt.supplier = supplier.nama;
+      this.receipt.alamat = supplier.alamat;
+      this.receipt.idSupplier = supplier.id;
+      this.receipt.kodeSupplier = supplier.kode;
+      this.receipt.no_hp = supplier.no_hp;
+      this.receipt.email = supplier.email;
+      this.showSupplierList = false;
+    },
+    searchItems() {
+      this.currentPage = 1;
+      this.loadItems().then(() => {
+        if (this.items.length === 0) {
+          alert('Tidak ada item yang ditemukan.');
+        }
+      });
+    },
+    clearItemSearch() {
+      this.searchQuery = '';
+      this.currentPage = 1;
+      this.loadItems();
+    },
+  },
 };
 </script>
 
 <style scoped>
-.container {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 35px;
-  height: 85vh;
+.bengkel-card {
+  border: 1px solid #f1dcdc;
+  background-color: #ffffff;
 }
 
-.receipt-form, .cart {
-  flex: 1;
-  max-width: 50%;
-  margin-top: -20px;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
+.bengkel-header {
+  background: linear-gradient(180deg, #fff6f6 0%, #ffffff 100%);
 }
 
-.form-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: -10px;
-  
+.bengkel-avatar-ring {
+  border: 1px solid #fecaca;
 }
 
-.new-button {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  padding: 5px 10px;
-  margin-top: -10px;
-  height: 25px;
-  font-size: 12px;
+.bengkel-stripe {
+  height: 3px;
+  background: linear-gradient(90deg, #c62828 0%, #ef5350 60%, #ffcdd2 100%);
 }
 
-.new-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.new-button:hover:enabled {
-  background-color: #218838;
-}
-
-.form-group {
-  margin-top: 15px;
-  margin-bottom: 10px;
-}
-
-.form-group label {
+.field-label {
   display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  font-size: 12px; /* Adjust the font size */
-  margin: 0; /* Adjust the margin */
+  font-size: 11px;
+  font-weight: 700;
+  color: #4b5563;
+  margin-bottom: 4px;
 }
 
-.form-group input {
-  width: 100%;
-  padding: 4px; /* Adjust the padding */
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 12px; /* Adjust the font size */
-  height: 25px; /* Adjust the height */
+.table-scroll-wrapper {
+  max-height: 360px;
+  overflow-y: auto;
 }
 
-
-.input-with-icon v-icon {
-  cursor: pointer;
-  margin-left: 10px;
-}
-
-.input-with-icon v-icon:disabled {
-  cursor: not-allowed;
-  color: #cccccc;
-
-}
-
-.flex-container {
-  display: flex;
-  gap: 10px;
-}
-
-.flex-item {
-  flex: 1;
-}
-
-.submit-button {
-  width: 100%;
-  padding: 2px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  height: 25px;
-  font-size: 15px;
-
-}
-
-.submit-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.submit-button:hover:enabled {
-  background-color: #0056b3;
-}
-
-.cart ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.cart li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.cart button {
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  padding: 5px 10px;
-  width: 20%;
-}
-
-.cart button:hover:enabled {
-  background-color: #35b63e;
-}
-
-h3{
-  margin-top: -25px;
-}
-
-h4{
-  margin-top: -15px;
-  margin-left: -10px;
-}
-
-.input-item{
-  width: 88% !important;
-}
-
-.icon-item{
-  width: 7%;
-  margin-left: 16px;
-  
-}
-
-.button-group {
-  display: flex;
-  justify-content: space-between;
-  gap: 0; /* Remove the gap */
-  width: 30%;
-  margin-top: 10px;
-  height: 25px;
-  font-size: 12px;
-  padding: 0;
-}
-
-.button-group button {
-  flex: 1;
-  margin-right: 5px; /* Add a small margin to the right of each button */
-}
-
-.button-group button:last-child {
-  margin-right: 0; /* Remove the margin from the last button */
-}
-
-.cancel-button {
-  width: 100%;
-  padding: 10px;
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-
-.save-button {
-  width: 100%;
-  padding: 10px;
-  background-color: #007bff; /* Biru */
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.save-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-
-.small-table thead {
-  background-color: rgb(213, 212, 212); /* Green background */
-  color: white; /* White text */
-  font-weight: bold;
-  text-align: left;
-
-}
-
-
-.small-table thead th {
-  height: 30px !important; /* Set a specific height */
-  border-bottom: 2px solid #ddd;
-  font-size: 15px !important;
-}
-
-/* Style for table body */
-.small-table tbody {
-  background-color: #fff;
-}
-
-.small-table tbody tr:nth-child(even) {
-  background-color: #f2f2f2; /* Light grey background for even rows */
-}
-
-.small-table tbody tr:hover {
-  background-color: #ddd; /* Darker grey background on hover */
-}
-
-.small-table tbody td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  
-}
-
-/* Add some padding and border radius to the table */
-.small-table {
-  width: 100%;
-  border-collapse: collapse;
-  border-radius: 5px;
-  overflow: hidden;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Add some margin to the table */
-.small-table {
-  margin-top: 20px;
-  
-}
-.cart-body td{
-  height: 28px !important;
+.bengkel-table th {
   font-size: 11px !important;
-  font-weight: bold !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em;
+  color: #7f1d1d !important;
+  background-color: #fef2f2 !important;
+  border-bottom: 1px solid #fecaca !important;
+  height: 36px !important;
 }
 
-
-.cart-body td {
-  font-size: 0.9em;
+.cart-row td {
+  font-size: 12px !important;
+  height: 36px !important;
+  border-bottom: 1px solid #f5ebeb !important;
 }
 
-.disabled-icon {
-  pointer-events: none;
-  color: #cccccc;
+.cart-row:hover {
+  background-color: #fff5f5 !important;
 }
 
-.dialog {
-  font-size: small;  
+.kode-red-pill {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 700;
 }
 
-.customer-text {
-  font-size: 1.0em; /* Ukuran font lebih kecil */
+.pagination-bar,
+.dialog-pagination-bar {
+  background-color: #fffafa;
+  border-top: 1px solid #f1dcdc;
+}
+
+.dialog-pagination-bar {
+  border: 1px solid #f1dcdc;
+}
+
+.page-indicator-box {
+  background-color: #ffffff;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 3px 9px;
+  font-size: 11px;
+  color: #4b5563;
+}
+
+.page-step-btn {
+  border-radius: 6px !important;
+  background-color: #ffffff !important;
+}
+
+.page-nav-btn {
+  border-radius: 6px !important;
+  background-color: #ffffff !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.modal-top-bar {
+  background-color: #ffffff;
+}
+
+.border-list {
+  border: 1px solid #f1dcdc;
+}
+
+.list-hover-red:hover {
+  background-color: #fff5f5 !important;
+  cursor: pointer;
+}
+
+.in-cart-item {
+  background-color: #fafafa !important;
+  opacity: 0.65;
+  cursor: not-allowed !important;
 }
 </style>
