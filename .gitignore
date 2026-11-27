@@ -1,11 +1,10 @@
 # Node modules
 node_modules/
 
-services/
-
 # Logs
 npm-debug.log*
 yarn-error.log*
+*.log
 
 # Environment files
 .env
@@ -16,31 +15,14 @@ yarn-error.log*
 dist/
 build/
 
-# Coverage
+# Coverage & cache
 coverage/
-
-# Cache
 .cache/
 
-# Logs
-*.log
-
-# Temporary files
+# Temporary & export/archive files
 *.tmp
-
-# Mengabaikan file .log
 *.xlsx
-
-# Mengabaikan file .tmp
 *.bat
-
-# Mengabaikan file .zip
 *.zip
-
 *.pdf
-
 *.viewmutasi.sql
-
-
-
-
