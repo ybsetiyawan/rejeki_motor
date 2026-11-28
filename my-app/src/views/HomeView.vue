@@ -1,318 +1,201 @@
 <template>
-  <div class="home">
-    <!-- 1. Rangkaian Gir Sprocket (Kiri Atas) -->
-    <svg
-      class="rm-part-float rm-pos-top-left"
-      viewBox="0 0 175 125"
-      aria-hidden="true"
-    >
-      <g class="rm-gear-cw-slow">
-        <circle cx="52" cy="60" r="32" fill="rgba(255, 245, 245, 0.72)" stroke="#c62828" stroke-width="3" />
-        <circle cx="52" cy="60" r="17" fill="rgba(255, 255, 255, 0.8)" stroke="#dc2626" stroke-width="2" />
-        <circle cx="52" cy="60" r="6" fill="#991b1b" />
-        <g stroke="#c62828" stroke-width="4.2" stroke-linecap="round">
-          <line x1="52" y1="22" x2="52" y2="28" />
-          <line x1="52" y1="92" x2="52" y2="98" />
-          <line x1="14" y1="60" x2="20" y2="60" />
-          <line x1="84" y1="60" x2="90" y2="60" />
-          <line x1="25" y1="33" x2="29" y2="37" />
-          <line x1="75" y1="83" x2="79" y2="87" />
-          <line x1="79" y1="33" x2="75" y2="37" />
-          <line x1="29" y1="83" x2="25" y2="87" />
+  <div class="rm-home-minimal">
+    <!-- Lapisan Animasi Spare Part & Elemen Bengkel (Tanpa Motor) -->
+    <div class="rm-garage-anim-layer" aria-hidden="true">
+      <!-- 1. Kiri Atas: Gir Sprocket Ganda -->
+      <svg class="rm-garage-svg rm-p-tl rm-anti-a" viewBox="0 0 140 105">
+        <g class="rm-spin-cw">
+          <circle cx="44" cy="52" r="28" fill="rgba(255, 250, 250, 0.88)" stroke="#dc2626" stroke-width="2.6" />
+          <circle cx="44" cy="52" r="13" fill="#ffffff" stroke="#b91c1c" stroke-width="2" />
+          <circle cx="44" cy="52" r="4.8" fill="#991b1b" />
+          <g stroke="#dc2626" stroke-width="3.6" stroke-linecap="round">
+            <line x1="44" y1="17" x2="44" y2="23" />
+            <line x1="44" y1="81" x2="44" y2="87" />
+            <line x1="9" y1="52" x2="15" y2="52" />
+            <line x1="73" y1="52" x2="79" y2="52" />
+            <line x1="19.5" y1="27.5" x2="23.8" y2="31.8" />
+            <line x1="64.2" y1="72.2" x2="68.5" y2="76.5" />
+            <line x1="68.5" y1="27.5" x2="64.2" y2="31.8" />
+            <line x1="23.8" y1="72.2" x2="19.5" y2="76.5" />
+          </g>
         </g>
-      </g>
 
-      <g class="rm-gear-ccw-fast">
-        <circle cx="116" cy="76" r="21" fill="rgba(254, 226, 226, 0.76)" stroke="#991b1b" stroke-width="2.6" />
-        <circle cx="116" cy="76" r="8.5" fill="rgba(255, 255, 255, 0.86)" stroke="#b91c1c" stroke-width="1.8" />
-        <g stroke="#991b1b" stroke-width="3.4" stroke-linecap="round">
-          <line x1="116" y1="50" x2="116" y2="55" />
-          <line x1="116" y1="97" x2="116" y2="102" />
-          <line x1="90" y1="76" x2="95" y2="76" />
-          <line x1="137" y1="76" x2="142" y2="76" />
-          <line x1="98" y1="58" x2="101" y2="61" />
-          <line x1="131" y1="91" x2="134" y2="94" />
+        <g class="rm-spin-ccw">
+          <circle cx="98" cy="66" r="18" fill="rgba(254, 226, 226, 0.9)" stroke="#991b1b" stroke-width="2.4" />
+          <circle cx="98" cy="66" r="7" fill="#ffffff" stroke="#b91c1c" stroke-width="1.8" />
+          <g stroke="#991b1b" stroke-width="3" stroke-linecap="round">
+            <line x1="98" y1="43" x2="98" y2="48" />
+            <line x1="98" y1="84" x2="98" y2="89" />
+            <line x1="75" y1="66" x2="80" y2="66" />
+            <line x1="116" y1="66" x2="121" y2="66" />
+          </g>
         </g>
-      </g>
-    </svg>
+      </svg>
 
-    <!-- 2. Gauge Jarum RPM (Tengah Atas) -->
-    <svg
-      class="rm-part-float rm-pos-top-center"
-      viewBox="0 0 115 88"
-      aria-hidden="true"
-    >
-      <path
-        d="M 24 66 A 34 34 0 1 1 90 66"
-        fill="none"
-        stroke="#fecaca"
-        stroke-width="6"
-        stroke-linecap="round"
-      />
-      <path
-        d="M 24 66 A 34 34 0 0 1 78 26"
-        fill="none"
-        stroke="#dc2626"
-        stroke-width="6"
-        stroke-linecap="round"
-      />
-      <line
-        x1="57"
-        y1="54"
-        x2="76"
-        y2="30"
-        stroke="#991b1b"
-        stroke-width="3"
-        stroke-linecap="round"
-        class="rm-gauge-sweep"
-      />
-      <circle cx="57" cy="54" r="5" fill="#1f2937" />
-    </svg>
-
-    <!-- 3. Busi / Spark Plug Berdenyut (Atas Tengah-Kanan) -->
-    <svg
-      class="rm-part-float rm-pos-spark-plug"
-      viewBox="0 0 85 115"
-      aria-hidden="true"
-    >
-      <g class="rm-plug-bob">
-        <rect x="33" y="14" width="18" height="28" rx="4" fill="rgba(255, 255, 255, 0.88)" stroke="#991b1b" stroke-width="2" />
-        <line x1="35" y1="22" x2="49" y2="22" stroke="#fca5a5" stroke-width="2" />
-        <line x1="35" y1="29" x2="49" y2="29" stroke="#fca5a5" stroke-width="2" />
-        <polygon points="28,42 56,42 59,52 25,52" fill="#fee2e2" stroke="#991b1b" stroke-width="2" />
-        <rect x="35" y="52" width="14" height="22" fill="#cbd5e1" stroke="#475569" stroke-width="1.8" />
-        <line x1="35" y1="58" x2="49" y2="58" stroke="#475569" stroke-width="1.5" />
-        <line x1="35" y1="64" x2="49" y2="64" stroke="#475569" stroke-width="1.5" />
-        <line x1="35" y1="70" x2="49" y2="70" stroke="#475569" stroke-width="1.5" />
-        <path d="M 42 74 L 42 84 L 51 84 L 51 77" fill="none" stroke="#991b1b" stroke-width="2.2" />
-        <circle cx="42" cy="86" r="4.5" fill="#ef4444" class="rm-plug-spark" />
-      </g>
-    </svg>
-
-    <!-- 4. Botol Oli Mesin & Tetesan Oli (Atas Kanan-Tengah) -->
-    <svg
-      class="rm-part-float rm-pos-oil-bottle"
-      viewBox="0 0 95 125"
-      aria-hidden="true"
-    >
-      <g class="rm-oil-tilt">
-        <!-- Tutup & Leher Botol -->
-        <rect x="36" y="14" width="16" height="9" rx="2" fill="#991b1b" />
-        <path d="M 35 23 L 53 23 L 62 38 L 26 38 Z" fill="rgba(254, 226, 226, 0.85)" stroke="#991b1b" stroke-width="2" />
-        <!-- Badan Botol Oli -->
-        <rect x="24" y="38" width="40" height="54" rx="7" fill="rgba(255, 255, 255, 0.85)" stroke="#c62828" stroke-width="2.2" />
-        <!-- Level Cairan Oli -->
-        <rect x="26" y="58" width="36" height="32" rx="5" fill="rgba(220, 38, 38, 0.24)" />
-        <!-- Label Strip Oli -->
-        <rect x="29" y="45" width="30" height="9" rx="2" fill="#fee2e2" stroke="#fca5a5" stroke-width="1" />
-      </g>
-      <!-- Tetesan Oli Jatuh -->
-      <circle cx="68" cy="48" r="3.5" fill="#dc2626" class="rm-oil-drop-1" />
-      <circle cx="71" cy="64" r="2.8" fill="#b91c1c" class="rm-oil-drop-2" />
-    </svg>
-
-    <!-- 5. Ban Motor Berulir (Tengah Kiri-Bawah / Samping) -->
-    <svg
-      class="rm-part-float rm-pos-tire"
-      viewBox="0 0 130 130"
-      aria-hidden="true"
-    >
-      <g class="rm-tire-spin">
-        <!-- Ban Luar Tebal -->
-        <circle cx="65" cy="65" r="46" fill="none" stroke="#1f2937" stroke-width="11" />
-        <!-- Alur Kembang Ban -->
-        <circle
-          cx="65"
-          cy="65"
-          r="51.5"
-          fill="none"
-          stroke="#4b5563"
-          stroke-width="2.5"
-          stroke-dasharray="6 6"
-        />
-        <circle
-          cx="65"
-          cy="65"
-          r="40.5"
-          fill="none"
-          stroke="#fca5a5"
-          stroke-width="2"
-          stroke-dasharray="8 5"
-        />
-        <!-- Bagian Dalam -->
-        <circle cx="65" cy="65" r="34" fill="rgba(255, 250, 250, 0.72)" stroke="#c62828" stroke-width="2" />
-        <circle cx="65" cy="65" r="9" fill="#fee2e2" stroke="#991b1b" stroke-width="2.2" />
-      </g>
-    </svg>
-
-    <!-- 6. Velg Palang / Alloy Wheel Berputar (Tengah Bawah) -->
-    <svg
-      class="rm-part-float rm-pos-rim"
-      viewBox="0 0 120 120"
-      aria-hidden="true"
-    >
-      <g class="rm-rim-spin">
-        <circle cx="60" cy="60" r="40" fill="rgba(255, 245, 245, 0.74)" stroke="#991b1b" stroke-width="4" />
-        <circle cx="60" cy="60" r="34" fill="none" stroke="#dc2626" stroke-width="1.8" />
-        <!-- 5 Palang Velg -->
-        <g stroke="#b91c1c" stroke-width="4.5" stroke-linecap="round">
-          <line x1="60" y1="60" x2="60" y2="26" />
-          <line x1="60" y1="60" x2="92" y2="49" />
-          <line x1="60" y1="60" x2="80" y2="88" />
-          <line x1="60" y1="60" x2="40" y2="88" />
-          <line x1="60" y1="60" x2="28" y2="49" />
-        </g>
-        <circle cx="60" cy="60" r="11" fill="#ffffff" stroke="#c62828" stroke-width="2.5" />
-        <circle cx="60" cy="60" r="4" fill="#991b1b" />
-      </g>
-    </svg>
-
-    <!-- 7. Kunci Pas Berayun (Pojok Kiri Bawah) -->
-    <svg
-      class="rm-part-float rm-pos-bottom-left"
-      viewBox="0 0 85 125"
-      aria-hidden="true"
-    >
-      <g class="rm-wrench-pivot">
+      <!-- 2. Atas Tengah: Gauge RPM -->
+      <svg class="rm-garage-svg rm-p-tc rm-anti-b" viewBox="0 0 110 88">
         <path
-          d="M 42 18 C 32 18 24 26 24 36 C 24 43 28 49 34 52 L 34 98 C 34 103 38 107 42 107 C 46 107 50 103 50 98 L 50 52 C 56 49 60 43 60 36 C 60 26 52 18 42 18 Z"
-          fill="rgba(254, 226, 226, 0.85)"
-          stroke="#991b1b"
-          stroke-width="2.3"
-        />
-        <rect x="37" y="16" width="10" height="14" rx="2" fill="#ffffff" />
-      </g>
-    </svg>
-
-    <!-- 8. Shockbreaker / Pegas Suspensi Memantul -->
-    <svg
-      class="rm-part-float rm-pos-shock"
-      viewBox="0 0 80 125"
-      aria-hidden="true"
-    >
-      <circle cx="40" cy="18" r="8" fill="#fee2e2" stroke="#991b1b" stroke-width="2.2" />
-      <line x1="40" y1="26" x2="40" y2="96" stroke="#475569" stroke-width="4" stroke-linecap="round" />
-      <g class="rm-spring-bounce">
-        <path
-          d="M 26 36 L 54 44 L 26 52 L 54 60 L 26 68 L 54 76"
+          d="M 21 66 A 33 33 0 1 1 87 66"
           fill="none"
-          stroke="#c62828"
-          stroke-width="3.4"
+          stroke="#fecaca"
+          stroke-width="6"
           stroke-linecap="round"
-          stroke-linejoin="round"
         />
-      </g>
-      <rect x="28" y="84" width="24" height="18" rx="4" fill="rgba(255, 245, 245, 0.88)" stroke="#991b1b" stroke-width="2" />
-      <circle cx="40" cy="108" r="6" fill="#fee2e2" stroke="#c62828" stroke-width="2" />
-    </svg>
-
-    <!-- 9. Cakram Rem & Kaliper Berputar -->
-    <svg
-      class="rm-part-float rm-pos-disc"
-      viewBox="0 0 112 112"
-      aria-hidden="true"
-    >
-      <g class="rm-disc-spin">
-        <circle cx="56" cy="56" r="36" fill="rgba(255, 245, 245, 0.72)" stroke="#991b1b" stroke-width="3" stroke-dasharray="14 6" />
-        <circle cx="56" cy="56" r="25" fill="rgba(255, 255, 255, 0.8)" stroke="#fca5a5" stroke-width="2" />
-        <circle cx="56" cy="56" r="10" fill="#fee2e2" stroke="#c62828" stroke-width="2.2" />
-        <circle cx="56" cy="56" r="3.5" fill="#991b1b" />
-      </g>
-      <path
-        d="M 81 23 L 96 33 L 92 53 L 77 47 Z"
-        fill="#dc2626"
-        stroke="#991b1b"
-        stroke-width="1.5"
-      />
-    </svg>
-
-    <!-- 10. Twin Piston Naik-Turun (Kanan Bawah) -->
-    <svg
-      class="rm-part-float rm-pos-bottom-right"
-      viewBox="0 0 150 155"
-      aria-hidden="true"
-    >
-      <rect x="20" y="24" width="44" height="88" rx="6" fill="rgba(255, 255, 255, 0.8)" stroke="#cbd5e1" stroke-width="2" />
-      <rect x="76" y="24" width="44" height="88" rx="6" fill="rgba(255, 255, 255, 0.8)" stroke="#cbd5e1" stroke-width="2" />
-
-      <rect x="38" y="12" width="8" height="12" rx="2" fill="#991b1b" />
-      <circle cx="42" cy="30" r="4" fill="#ef4444" class="rm-spark-a" />
-
-      <rect x="94" y="12" width="8" height="12" rx="2" fill="#991b1b" />
-      <circle cx="98" cy="30" r="4" fill="#ef4444" class="rm-spark-b" />
-
-      <g class="rm-piston-a">
-        <rect x="24" y="38" width="36" height="18" rx="3.5" fill="#dc2626" />
-        <line x1="27" y1="44" x2="57" y2="44" stroke="#fecaca" stroke-width="1.5" />
-        <line x1="42" y1="56" x2="42" y2="118" stroke="#475569" stroke-width="4" stroke-linecap="round" />
-      </g>
-
-      <g class="rm-piston-b">
-        <rect x="80" y="38" width="36" height="18" rx="3.5" fill="#b91c1c" />
-        <line x1="83" y1="44" x2="113" y2="44" stroke="#fecaca" stroke-width="1.5" />
-        <line x1="98" y1="56" x2="98" y2="118" stroke="#475569" stroke-width="4" stroke-linecap="round" />
-      </g>
-
-      <rect x="18" y="116" width="104" height="12" rx="6" fill="rgba(255, 245, 245, 0.88)" stroke="#991b1b" stroke-width="2" />
-      <circle cx="42" cy="122" r="4.5" fill="#c62828" />
-      <circle cx="98" cy="122" r="4.5" fill="#c62828" />
-    </svg>
-
-    <!-- 11. Mur Hex Melayang-Berputar -->
-    <svg
-      class="rm-part-float rm-pos-mid-drift"
-      viewBox="0 0 90 90"
-      aria-hidden="true"
-    >
-      <g class="rm-nut-orbit">
-        <polygon
-          points="45,18 62,28 62,48 45,58 28,48 28,28"
-          fill="rgba(254, 226, 226, 0.82)"
-          stroke="#b91c1c"
-          stroke-width="2.2"
+        <path
+          d="M 21 66 A 33 33 0 0 1 74 26"
+          fill="none"
+          stroke="#dc2626"
+          stroke-width="6"
+          stroke-linecap="round"
         />
-        <circle cx="45" cy="38" r="9" fill="rgba(255, 255, 255, 0.88)" stroke="#991b1b" stroke-width="1.8" />
-      </g>
-    </svg>
+        <line
+          x1="54"
+          y1="54"
+          x2="72"
+          y2="30"
+          stroke="#991b1b"
+          stroke-width="3"
+          stroke-linecap="round"
+          class="rm-needle"
+        />
+        <circle cx="54" cy="54" r="5" fill="#1f2937" />
+      </svg>
 
-    <!-- 12. Bohlam / Lampu Sein Berdenyut -->
-    <svg
-      class="rm-part-float rm-pos-bulb"
-      viewBox="0 0 80 95"
-      aria-hidden="true"
-    >
-      <g class="rm-bulb-pulse">
-        <circle cx="40" cy="38" r="20" fill="rgba(254, 226, 226, 0.82)" stroke="#c62828" stroke-width="2.2" />
-        <path d="M 33 44 L 37 32 L 43 32 L 47 44" fill="none" stroke="#991b1b" stroke-width="2" />
-        <rect x="32" y="58" width="16" height="12" rx="3" fill="#cbd5e1" stroke="#475569" stroke-width="1.8" />
-        <line x1="34" y1="63" x2="46" y2="63" stroke="#475569" stroke-width="1.5" />
-      </g>
-    </svg>
+      <!-- 3. Atas Kanan-Tengah: Busi / Spark Plug -->
+      <svg class="rm-garage-svg rm-p-tr rm-anti-c" viewBox="0 0 85 110">
+        <g class="rm-plug-bob">
+          <rect x="33" y="12" width="18" height="26" rx="4" fill="rgba(255, 255, 255, 0.92)" stroke="#991b1b" stroke-width="2" />
+          <line x1="35" y1="20" x2="49" y2="20" stroke="#fca5a5" stroke-width="2" />
+          <line x1="35" y1="27" x2="49" y2="27" stroke="#fca5a5" stroke-width="2" />
+          <polygon points="28,38 56,38 59,48 25,48" fill="#fee2e2" stroke="#991b1b" stroke-width="2" />
+          <rect x="35" y="48" width="14" height="20" fill="#cbd5e1" stroke="#475569" stroke-width="1.8" />
+          <path d="M 42 68 L 42 79 L 52 79 L 52 71" fill="none" stroke="#991b1b" stroke-width="2.2" />
+          <circle cx="42" cy="81" r="4.2" fill="#ef4444" class="rm-spark" />
+        </g>
+      </svg>
 
-    <!-- Panel Utama Beranda: Sambutan & Waktu Real-Time -->
-    <section class="rm-welcome-panel rm-enter-anim" aria-label="Beranda Rejeki Motor">
-      <div class="rm-badge-line mb-2">
-        <span class="rm-pulse-led mr-2"></span>
-        REJEKI MOTOR &bull; BENGKEL &amp; SUKU CADANG
-      </div>
+      <!-- 4. Kiri Bawah: Kunci Pas & Mur Hex -->
+      <svg class="rm-garage-svg rm-p-bl rm-anti-b" viewBox="0 0 130 105">
+        <g class="rm-wrench">
+          <path
+            d="M 34 14 C 24 14 16 22 16 32 C 16 39 20 45 26 48 L 26 86 C 26 91 30 95 34 95 C 38 95 42 91 42 86 L 42 48 C 48 45 52 39 52 32 C 52 22 44 14 34 14 Z"
+            fill="rgba(254, 242, 242, 0.9)"
+            stroke="#b91c1c"
+            stroke-width="2.2"
+          />
+          <rect x="29" y="12" width="10" height="12" rx="2" fill="#ffffff" />
+        </g>
+        <g class="rm-spin-cw-nut">
+          <polygon
+            points="92,42 107,51 107,69 92,78 77,69 77,51"
+            fill="rgba(255, 255, 255, 0.9)"
+            stroke="#b91c1c"
+            stroke-width="2.2"
+          />
+          <circle cx="92" cy="60" r="7.5" fill="rgba(254, 226, 226, 0.92)" stroke="#991b1b" stroke-width="1.8" />
+        </g>
+      </svg>
 
-      <h1 class="rm-heading mb-1">
-        Selamat Datang di <span class="rm-red-accent">Beranda</span>
-      </h1>
+      <!-- 5. Bawah Tengah-Kiri: Ban Motor Berulir -->
+      <svg class="rm-garage-svg rm-p-tire rm-anti-a" viewBox="0 0 120 120">
+        <g class="rm-spin-cw-tire">
+          <circle cx="60" cy="60" r="41" fill="none" stroke="#1f2937" stroke-width="10" />
+          <circle
+            cx="60"
+            cy="60"
+            r="46"
+            fill="none"
+            stroke="#4b5563"
+            stroke-width="2.4"
+            stroke-dasharray="6 6"
+          />
+          <circle
+            cx="60"
+            cy="60"
+            r="36"
+            fill="none"
+            stroke="#fca5a5"
+            stroke-width="1.8"
+            stroke-dasharray="7 5"
+          />
+          <circle cx="60" cy="60" r="30" fill="rgba(255, 250, 250, 0.8)" stroke="#c62828" stroke-width="2" />
+          <circle cx="60" cy="60" r="8" fill="#fee2e2" stroke="#991b1b" stroke-width="2" />
+        </g>
+      </svg>
 
-      <p class="rm-subtext mb-4">
-        Ini adalah halaman utama aplikasi kami. Kelola inventori, transaksi, retur, dan laporan bengkel melalui menu navigasi.
-      </p>
+      <!-- 6. Bawah Tengah: Botol Oli Mesin & Tetesan -->
+      <svg class="rm-garage-svg rm-p-oil rm-anti-c" viewBox="0 0 95 115">
+        <g class="rm-oil-tilt">
+          <rect x="34" y="12" width="16" height="8" rx="2" fill="#991b1b" />
+          <path d="M 33 20 L 51 20 L 59 34 L 25 34 Z" fill="rgba(254, 226, 226, 0.9)" stroke="#991b1b" stroke-width="2" />
+          <rect x="23" y="34" width="38" height="48" rx="6.5" fill="rgba(255, 255, 255, 0.9)" stroke="#c62828" stroke-width="2.2" />
+          <rect x="25" y="52" width="34" height="28" rx="4.5" fill="rgba(220, 38, 38, 0.24)" />
+          <rect x="28" y="40" width="28" height="8" rx="2" fill="#fee2e2" stroke="#fca5a5" stroke-width="1" />
+        </g>
+        <circle cx="65" cy="44" r="3.2" fill="#dc2626" class="rm-drop-1" />
+        <circle cx="68" cy="58" r="2.6" fill="#b91c1c" class="rm-drop-2" />
+      </svg>
 
-      <div class="rm-clock-card">
-        <div class="rm-clock-top">
-          <v-icon x-small color="red darken-2" class="mr-1">mdi-clock-outline</v-icon>
-          <span>WAKTU REAL-TIME</span>
+      <!-- 7. Bawah Tengah-Kanan: Cakram Rem -->
+      <svg class="rm-garage-svg rm-p-disc rm-anti-b" viewBox="0 0 105 105">
+        <g class="rm-spin-ccw-disc">
+          <circle cx="52" cy="52" r="34" fill="rgba(255, 255, 255, 0.85)" stroke="#991b1b" stroke-width="2.8" stroke-dasharray="13 5" />
+          <circle cx="52" cy="52" r="23" fill="rgba(254, 242, 242, 0.88)" stroke="#fca5a5" stroke-width="1.8" />
+          <circle cx="52" cy="52" r="9.5" fill="#fee2e2" stroke="#c62828" stroke-width="2.2" />
+          <circle cx="52" cy="52" r="3.4" fill="#991b1b" />
+        </g>
+      </svg>
+
+      <!-- 8. Kanan Bawah: Twin Piston Naik-Turun -->
+      <svg class="rm-garage-svg rm-p-br rm-anti-a" viewBox="0 0 130 110">
+        <rect x="14" y="14" width="38" height="74" rx="5.5" fill="rgba(255, 255, 255, 0.88)" stroke="#cbd5e1" stroke-width="1.8" />
+        <rect x="64" y="14" width="38" height="74" rx="5.5" fill="rgba(255, 255, 255, 0.88)" stroke="#cbd5e1" stroke-width="1.8" />
+
+        <g class="rm-piston-1">
+          <rect x="18" y="25" width="30" height="14" rx="3" fill="#dc2626" />
+          <line x1="33" y1="39" x2="33" y2="94" stroke="#475569" stroke-width="3.6" stroke-linecap="round" />
+        </g>
+
+        <g class="rm-piston-2">
+          <rect x="68" y="25" width="30" height="14" rx="3" fill="#b91c1c" />
+          <line x1="83" y1="39" x2="83" y2="94" stroke="#475569" stroke-width="3.6" stroke-linecap="round" />
+        </g>
+
+        <rect x="10" y="92" width="96" height="10" rx="5" fill="rgba(255, 245, 245, 0.92)" stroke="#991b1b" stroke-width="2" />
+      </svg>
+    </div>
+
+    <!-- Konten Utama Minimalis -->
+    <div class="rm-minimal-inner">
+      <div class="rm-minimal-left rm-minimal-enter">
+        <div class="rm-minimal-tag mb-2">REJEKI MOTOR</div>
+
+        <h1 class="rm-minimal-title mb-2">
+          Selamat Datang di <span>Beranda</span>
+        </h1>
+
+        <p class="rm-minimal-desc mb-5">
+          Gunakan menu di samping untuk mengakses data master, transaksi, retur, dan laporan.
+        </p>
+
+        <div class="rm-minimal-clock">
+          <div class="rm-minimal-time">{{ formattedTime }}</div>
+          <div class="rm-minimal-date">{{ formattedDate }}</div>
         </div>
-        <div class="rm-clock-digits">{{ formattedTime }}</div>
-        <div class="rm-clock-date">{{ formattedDate }}</div>
       </div>
-    </section>
+
+      <div class="rm-minimal-right rm-minimal-enter rm-anti-gravity-logo" aria-hidden="true">
+        <div class="rm-minimal-logo-ring">
+          <v-img
+            src="../assets/css/logo.png"
+            alt="Logo Rejeki Motor"
+            width="216"
+            height="216"
+            contain
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -359,309 +242,283 @@ export default {
 </script>
 
 <style scoped>
-.home {
+.rm-home-minimal {
   position: relative;
+  min-height: 82vh;
   display: flex;
   align-items: center;
-  min-height: 85vh;
-  background-image: url('../assets/css/logo.png');
-  background-position: 100% 35%;
-  background-repeat: no-repeat;
-  background-color: #f0f4f8;
-  padding: 28px 36px;
+  justify-content: center;
+  background-color: #ffffff;
+  border: 1px solid #ece5e5;
+  border-radius: 14px;
+  padding: 36px 40px;
   overflow: hidden;
 }
 
-.rm-part-float {
+.rm-garage-anim-layer {
   position: absolute;
+  inset: 0;
   pointer-events: none;
   z-index: 1;
-  opacity: 0.78;
 }
 
-/* Sebaran 12 Spare Part di Berbagai Posisi */
-.rm-pos-top-left {
+.rm-garage-svg {
+  position: absolute;
+  opacity: 0.56;
+}
+
+/* Sebaran 8 Gugus Logo Part di Sekitar Latar */
+.rm-p-tl {
   top: 14px;
-  left: 20px;
-  width: 150px;
-  height: 106px;
+  left: 16px;
+  width: 122px;
+  height: 92px;
 }
 
-.rm-pos-top-center {
-  top: 16px;
-  left: 41%;
-  width: 102px;
-  height: 78px;
+.rm-p-tc {
+  top: 14px;
+  left: 38%;
+  width: 96px;
+  height: 76px;
 }
 
-.rm-pos-spark-plug {
-  top: 18px;
-  left: 55%;
-  width: 70px;
+.rm-p-tr {
+  top: 14px;
+  right: 29%;
+  width: 74px;
   height: 96px;
 }
 
-.rm-pos-oil-bottle {
-  top: 22px;
-  right: 26%;
-  width: 82px;
-  height: 108px;
-}
-
-.rm-pos-mid-drift {
-  top: 42%;
-  left: 38%;
-  width: 72px;
-  height: 72px;
-}
-
-.rm-pos-bulb {
-  top: 44%;
-  right: 27%;
-  width: 68px;
-  height: 80px;
-}
-
-.rm-pos-shock {
-  bottom: 20px;
-  left: 16%;
-  width: 66px;
-  height: 105px;
-}
-
-.rm-pos-bottom-left {
-  bottom: 14px;
-  left: 30px;
-  width: 72px;
-  height: 106px;
-}
-
-.rm-pos-tire {
+.rm-p-bl {
   bottom: 16px;
-  left: 28%;
-  width: 108px;
-  height: 108px;
+  left: 16px;
+  width: 118px;
+  height: 96px;
 }
 
-.rm-pos-rim {
-  bottom: 18px;
-  left: 43%;
+.rm-p-tire {
+  bottom: 14px;
+  left: 24%;
   width: 102px;
   height: 102px;
 }
 
-.rm-pos-disc {
-  bottom: 16px;
-  left: 56%;
-  width: 96px;
-  height: 96px;
-}
-
-.rm-pos-bottom-right {
+.rm-p-oil {
   bottom: 14px;
-  right: 22%;
-  width: 136px;
-  height: 140px;
+  left: 41%;
+  width: 82px;
+  height: 100px;
 }
 
-/* Panel Utama */
-.rm-welcome-panel {
+.rm-p-disc {
+  bottom: 16px;
+  right: 32%;
+  width: 92px;
+  height: 92px;
+}
+
+.rm-p-br {
+  bottom: 16px;
+  right: 18px;
+  width: 116px;
+  height: 98px;
+}
+
+.rm-minimal-inner {
   position: relative;
   z-index: 2;
-  max-width: 445px;
   width: 100%;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(4px);
-  border: 1px solid #f1dcdc;
-  border-left: 4px solid #c62828;
-  border-radius: 14px;
-  padding: 22px 26px;
-  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
-}
-
-.rm-enter-anim {
-  animation: rmPanelIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.rm-badge-line {
-  display: inline-flex;
+  max-width: 980px;
+  display: flex;
   align-items: center;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: #991b1b;
-  background-color: #fff5f5;
-  border: 1px solid #fecaca;
-  padding: 3px 10px;
-  border-radius: 999px;
+  justify-content: space-between;
+  gap: 36px;
 }
 
-.rm-pulse-led {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background-color: #dc2626;
+.rm-minimal-left {
+  max-width: 460px;
+}
+
+.rm-minimal-tag {
   display: inline-block;
-  animation: rmLedPulse 1.8s infinite ease-in-out;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #b91c1c;
+  border-bottom: 2px solid #dc2626;
+  padding-bottom: 3px;
 }
 
-.rm-heading {
-  font-size: 1.62rem;
+.rm-minimal-title {
+  font-size: 1.78rem;
   font-weight: 900;
   color: #111827;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
-.rm-red-accent {
+.rm-minimal-title span {
   color: #c62828;
 }
 
-.rm-subtext {
-  font-size: 0.86rem;
+.rm-minimal-desc {
+  font-size: 0.9rem;
   color: #4b5563;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-.rm-clock-card {
-  background: linear-gradient(180deg, #fffafa 0%, #fff1f2 100%);
-  border: 1px solid #fecaca;
-  border-radius: 10px;
-  padding: 11px 14px;
+.rm-minimal-clock {
+  padding-left: 14px;
+  border-left: 3px solid #dc2626;
 }
 
-.rm-clock-top {
-  display: flex;
-  align-items: center;
-  font-size: 9.5px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: #991b1b;
-  margin-bottom: 3px;
-}
-
-.rm-clock-digits {
+.rm-minimal-time {
   font-family: 'Courier New', Courier, monospace;
-  font-size: 1.28rem;
+  font-size: 1.55rem;
   font-weight: 900;
   color: #111827;
   letter-spacing: 0.05em;
   font-variant-numeric: tabular-nums;
-  line-height: 1.2;
 }
 
-.rm-clock-date {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #374151;
+.rm-minimal-date {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #6b7280;
   margin-top: 2px;
 }
 
-/* Animasi Spare Part */
-.rm-gear-cw-slow {
-  transform-origin: 52px 60px;
-  animation: rmSpinCW 7.5s linear infinite;
+/* Logo Utama Besar + Efek Anti-Gravity */
+.rm-minimal-logo-ring {
+  width: 284px;
+  height: 284px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #fff5f5 78%, #fee2e2 100%);
+  border: 1.5px solid #f1dcdc;
+  box-shadow: 0 22px 38px -14px rgba(185, 28, 28, 0.18), inset 0 2px 10px rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.rm-gear-ccw-fast {
-  transform-origin: 116px 76px;
-  animation: rmSpinCCW 4.2s linear infinite;
+.rm-anti-gravity-logo {
+  animation: rmAntiGravityLogo 4.8s ease-in-out infinite;
 }
 
-.rm-piston-a {
-  animation: rmPistonMove 1.1s ease-in-out infinite;
+.rm-anti-a {
+  animation: rmPartFloatA 4.2s ease-in-out infinite;
 }
 
-.rm-piston-b {
-  animation: rmPistonMove 1.1s ease-in-out -0.55s infinite;
+.rm-anti-b {
+  animation: rmPartFloatB 5s ease-in-out -1.1s infinite;
 }
 
-.rm-spark-a {
-  animation: rmSparkPop 1.1s ease-in-out infinite;
+.rm-anti-c {
+  animation: rmPartFloatA 5.8s ease-in-out -2.2s infinite;
 }
 
-.rm-spark-b {
-  animation: rmSparkPop 1.1s ease-in-out -0.55s infinite;
+.rm-minimal-enter {
+  animation: rmMinFade 0.35s ease both;
 }
 
-.rm-disc-spin {
-  transform-origin: 56px 56px;
-  animation: rmSpinCW 5.5s linear infinite;
+.rm-spin-cw {
+  transform-origin: 44px 52px;
+  animation: rmSpinCW 8.5s linear infinite;
 }
 
-.rm-tire-spin {
-  transform-origin: 65px 65px;
-  animation: rmSpinCW 8s linear infinite;
+.rm-spin-ccw {
+  transform-origin: 98px 66px;
+  animation: rmSpinCCW 4.6s linear infinite;
 }
 
-.rm-rim-spin {
+.rm-spin-cw-nut {
+  transform-origin: 92px 60px;
+  animation: rmSpinCW 6.5s linear infinite;
+}
+
+.rm-spin-cw-tire {
   transform-origin: 60px 60px;
-  animation: rmSpinCCW 5s linear infinite;
+  animation: rmSpinCW 9s linear infinite;
 }
 
-.rm-wrench-pivot {
-  transform-origin: 42px 36px;
-  animation: rmWrenchRock 2.2s ease-in-out infinite;
+.rm-spin-ccw-disc {
+  transform-origin: 52px 52px;
+  animation: rmSpinCCW 5.8s linear infinite;
 }
 
-.rm-gauge-sweep {
-  transform-origin: 57px 54px;
-  animation: rmNeedleSweep 3s ease-in-out infinite;
+.rm-wrench {
+  transform-origin: 34px 32px;
+  animation: rmWrenchSwing 2.5s ease-in-out infinite;
+}
+
+.rm-needle {
+  transform-origin: 54px 54px;
+  animation: rmNeedleSweep 3.2s ease-in-out infinite;
 }
 
 .rm-plug-bob {
-  animation: rmPlugFloat 2.4s ease-in-out infinite;
+  animation: rmPlugFloat 2.5s ease-in-out infinite;
 }
 
-.rm-plug-spark {
+.rm-spark {
   animation: rmSparkPop 1.4s ease-in-out infinite;
 }
 
 .rm-oil-tilt {
-  transform-origin: 44px 55px;
-  animation: rmOilPour 3.2s ease-in-out infinite;
+  transform-origin: 42px 50px;
+  animation: rmOilTilt 3.4s ease-in-out infinite;
 }
 
-.rm-oil-drop-1 {
-  animation: rmDropFall 1.6s ease-in infinite;
+.rm-drop-1 {
+  animation: rmDropFall 1.7s ease-in infinite;
 }
 
-.rm-oil-drop-2 {
-  animation: rmDropFall 1.6s ease-in 0.8s infinite;
+.rm-drop-2 {
+  animation: rmDropFall 1.7s ease-in 0.85s infinite;
 }
 
-.rm-spring-bounce {
-  animation: rmSpringCompress 1.5s ease-in-out infinite;
+.rm-piston-1 {
+  animation: rmPistonStroke 1.2s ease-in-out infinite;
 }
 
-.rm-nut-orbit {
-  transform-origin: 45px 38px;
-  animation: rmNutDrift 6.5s ease-in-out infinite;
+.rm-piston-2 {
+  animation: rmPistonStroke 1.2s ease-in-out -0.6s infinite;
 }
 
-.rm-bulb-pulse {
-  transform-origin: 40px 38px;
-  animation: rmBulbGlow 2s ease-in-out infinite;
-}
-
-@keyframes rmPanelIn {
+@keyframes rmMinFade {
   0% {
     opacity: 0;
-    transform: translateX(-10px);
+    transform: translateY(6px);
   }
   100% {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
-@keyframes rmLedPulse {
+@keyframes rmAntiGravityLogo {
   0%, 100% {
-    opacity: 0.45;
-    transform: scale(0.85);
+    transform: translateY(0px) rotate(0deg);
   }
   50% {
-    opacity: 1;
-    transform: scale(1.25);
+    transform: translateY(-14px) rotate(1.3deg);
+  }
+}
+
+@keyframes rmPartFloatA {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes rmPartFloatB {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(2deg);
   }
 }
 
@@ -675,146 +532,117 @@ export default {
   100% { transform: rotate(-360deg); }
 }
 
-@keyframes rmPistonMove {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(20px); }
-}
-
-@keyframes rmSparkPop {
-  0%, 78%, 100% { opacity: 0.15; transform: scale(0.8); }
-  12% { opacity: 1; transform: scale(1.35); }
-}
-
-@keyframes rmWrenchRock {
-  0%, 100% { transform: rotate(-12deg); }
-  50% { transform: rotate(12deg); }
+@keyframes rmWrenchSwing {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(10deg); }
 }
 
 @keyframes rmNeedleSweep {
-  0%, 100% { transform: rotate(-28deg); }
+  0%, 100% { transform: rotate(-26deg); }
   45% { transform: rotate(22deg); }
-  75% { transform: rotate(-5deg); }
+  75% { transform: rotate(-6deg); }
 }
 
 @keyframes rmPlugFloat {
-  0%, 100% { transform: translateY(0) rotate(-3deg); }
-  50% { transform: translateY(-5px) rotate(3deg); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 
-@keyframes rmOilPour {
+@keyframes rmSparkPop {
+  0%, 75%, 100% { opacity: 0.2; transform: scale(0.85); }
+  15% { opacity: 1; transform: scale(1.3); }
+}
+
+@keyframes rmOilTilt {
   0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(14deg); }
+  50% { transform: rotate(13deg); }
 }
 
 @keyframes rmDropFall {
   0% {
     opacity: 0;
-    transform: translateY(0) scale(0.7);
+    transform: translateY(0) scale(0.75);
   }
   30% {
     opacity: 0.9;
   }
   100% {
     opacity: 0;
-    transform: translateY(24px) scale(1.1);
+    transform: translateY(22px) scale(1.1);
   }
 }
 
-@keyframes rmSpringCompress {
-  0%, 100% { transform: scaleY(1); transform-origin: 40px 36px; }
-  50% { transform: scaleY(0.84); transform-origin: 40px 36px; }
+@keyframes rmPistonStroke {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(15px); }
 }
 
-@keyframes rmNutDrift {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  50% { transform: translate(6px, -6px) rotate(120deg); }
-}
-
-@keyframes rmBulbGlow {
-  0%, 100% { transform: scale(0.96); opacity: 0.72; }
-  50% { transform: scale(1.06); opacity: 1; }
-}
-
-@media (max-width: 1180px) {
-  .rm-pos-oil-bottle,
-  .rm-pos-bulb,
-  .rm-pos-disc {
+@media (max-width: 1024px) {
+  .rm-p-tc,
+  .rm-p-tr,
+  .rm-p-oil,
+  .rm-p-disc {
     display: none;
   }
 
-  .rm-pos-bottom-right {
-    right: 22%;
-    width: 115px;
-    height: 120px;
+  .rm-minimal-logo-ring {
+    width: 230px;
+    height: 230px;
   }
 }
 
-@media (max-width: 959px) {
-  .home {
-    justify-content: center;
-    padding: 20px 16px;
-    background-position: 50% 97%;
-    background-size: 160px auto;
+@media (max-width: 820px) {
+  .rm-home-minimal {
+    padding: 24px 20px;
   }
 
-  .rm-pos-top-center,
-  .rm-pos-spark-plug,
-  .rm-pos-oil-bottle,
-  .rm-pos-mid-drift,
-  .rm-pos-bulb,
-  .rm-pos-shock,
-  .rm-pos-tire,
-  .rm-pos-rim,
-  .rm-pos-disc {
+  .rm-minimal-inner {
+    flex-direction: column-reverse;
+    text-align: center;
+    gap: 24px;
+  }
+
+  .rm-minimal-clock {
+    padding-left: 0;
+    border-left: 0;
+    border-top: 2px solid #fecaca;
+    padding-top: 12px;
+  }
+
+  .rm-minimal-logo-ring {
+    width: 180px;
+    height: 180px;
+  }
+
+  .rm-p-tl,
+  .rm-p-bl,
+  .rm-p-tire,
+  .rm-p-br {
     display: none;
-  }
-
-  .rm-pos-top-left {
-    top: 8px;
-    left: 10px;
-    width: 115px;
-    height: 82px;
-  }
-
-  .rm-pos-bottom-left {
-    bottom: 12px;
-    left: 12px;
-    width: 62px;
-    height: 92px;
-  }
-
-  .rm-pos-bottom-right {
-    bottom: 12px;
-    right: 12px;
-    width: 105px;
-    height: 110px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rm-enter-anim,
-  .rm-pulse-led,
-  .rm-gear-cw-slow,
-  .rm-gear-ccw-fast,
-  .rm-piston-a,
-  .rm-piston-b,
-  .rm-spark-a,
-  .rm-spark-b,
-  .rm-disc-spin,
-  .rm-tire-spin,
-  .rm-rim-spin,
-  .rm-wrench-pivot,
-  .rm-gauge-sweep,
+  .rm-minimal-enter,
+  .rm-anti-gravity-logo,
+  .rm-anti-a,
+  .rm-anti-b,
+  .rm-anti-c,
+  .rm-spin-cw,
+  .rm-spin-ccw,
+  .rm-spin-cw-nut,
+  .rm-spin-cw-tire,
+  .rm-spin-ccw-disc,
+  .rm-wrench,
+  .rm-needle,
   .rm-plug-bob,
-  .rm-plug-spark,
+  .rm-spark,
   .rm-oil-tilt,
-  .rm-oil-drop-1,
-  .rm-oil-drop-2,
-  .rm-spring-bounce,
-  .rm-nut-orbit,
-  .rm-bulb-pulse {
+  .rm-drop-1,
+  .rm-drop-2,
+  .rm-piston-1,
+  .rm-piston-2 {
     animation: none !important;
-    transition: none !important;
   }
 }
 </style>

@@ -364,7 +364,7 @@ export default {
       satuanItems: [],
       valid: true,
       currentPage: 1,
-      pageSize: 12,
+      pageSize: 10,
       totalItems: 0,
       formatHarga,
       toUpperCase,

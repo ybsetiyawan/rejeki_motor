@@ -240,12 +240,12 @@
             <v-col cols="12" sm="6">
               <v-text-field
                 :type="showPassword ? 'text' : 'password'"
-                label="Password *"
+                :label="isEditing ? 'Password (opsional)' : 'Password *'"
                 v-model="newUser.password"
                 color="red darken-2"
                 outlined
                 dense
-                required
+                :required="!isEditing"
                 :append-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
                 @click:append="showPassword = !showPassword"
               ></v-text-field>
@@ -417,18 +417,22 @@ export default {
       if (!found) return;
       this.isEditing = true;
       this.showPassword = false;
-      this.newUser = { ...found };
+      this.newUser = { ...found, password: '' };
       this.dialog = true;
     },
 
     updateUser() {
       toUpperCaseFields(this.newUser, ['pegawai']);
-      api.put(`/m_user/${this.newUser.user_id}`, {
+      const payload = {
         pegawai: this.newUser.pegawai,
         username: this.newUser.username,
-        password: this.newUser.password,
         id_role: this.newUser.id_role,
-      })
+      };
+      if (this.newUser.password && String(this.newUser.password).trim() !== '') {
+        payload.password = this.newUser.password;
+      }
+
+      api.put(`/m_user/${this.newUser.user_id}`, payload)
         .then(response => {
           const index = this.users.findIndex(user => user.user_id === this.newUser.user_id);
           if (index !== -1) {
@@ -446,7 +450,12 @@ export default {
     },
 
     addOrUpdateUser() {
-      if (!this.newUser.pegawai || !this.newUser.username || !this.newUser.password || !this.newUser.id_role) {
+      if (
+        !this.newUser.pegawai ||
+        !this.newUser.username ||
+        (!this.isEditing && !this.newUser.password) ||
+        !this.newUser.id_role
+      ) {
         alert('Ada data yang kosong, Silahkan isi data dengan benar');
         return;
       }

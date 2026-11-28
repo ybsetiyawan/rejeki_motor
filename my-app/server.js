@@ -1,5 +1,12 @@
 const express = require('express');
 const path = require('path');
+
+try {
+  require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+} catch (e) {
+  // Abaikan jika dotenv tidak tersedia (mis. env disuntikkan oleh PM2/OS)
+}
+
 const app = express();
 
 // Ganti 'dist' dengan direktori build aplikasi Vue Anda

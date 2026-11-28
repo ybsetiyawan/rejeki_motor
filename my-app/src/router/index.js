@@ -160,6 +160,7 @@ router.beforeEach((to, from, next) => {
             icon: 'error',
             width: '400px',
           });
+          next(to.path !== '/' ? '/' : false);
         } else {
           next();
         }

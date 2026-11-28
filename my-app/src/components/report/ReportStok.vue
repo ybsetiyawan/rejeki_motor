@@ -402,7 +402,7 @@ export default {
       stockFilter: null,
       lessThanFive: false,
       currentPage: 1,
-      pageSize: 19,
+      pageSize: 10,
       totalItems: 0,
 
       // State dialog riwayat item

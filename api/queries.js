@@ -1,13 +1,17 @@
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+
 const pgqueri = require('./pqqueri');
 const Pool = require('pg').Pool;
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'db_bengkel',
-    password: 'pakepake',
-    port: 5432,
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: Number(process.env.DB_PORT) || 5432,
 });
 const bcrypt = require('bcrypt');
+const { signToken, setAuthCookie, clearAuthCookie } = require('./middleware/auth');
 
 //m_customer
 const get_m_customer = (request, response) => {
@@ -363,7 +367,11 @@ const delete_m_item = (request, response) => {
 //m_user
 const get_m_user = (request, response) => {
     pool.query(pgqueri.get_all_user, (err, result) => {
-        response.status(200).json(result.rows);
+        if (err) {
+            console.error("Error fetching users:", err);
+            return response.status(500).json({ message: 'Internal Server Error' });
+        }
+        return response.status(200).json(result.rows);
     });
 }
 
@@ -372,6 +380,10 @@ const add_m_user = (request, response) => {
     const username = request.body.username;
     const password = request.body.password;
     const id_role = request.body.id_role;
+
+    if (!pegawai || !username || !password || !id_role) {
+        return response.status(400).json({ message: 'Data user belum lengkap' });
+    }
 
     // Generate salt untuk bcrypt (semakin tinggi saltRounds, semakin aman, tapi semakin lambat)
     const saltRounds = 10; // Nilai yang direkomendasikan
@@ -382,7 +394,6 @@ const add_m_user = (request, response) => {
             return response.status(500).json({ message: 'Gagal mengenkripsi password' }); // Handle error
         }
 
-    
         // Gunakan hash yang sudah dienkripsi untuk disimpan di database
         pool.query('INSERT INTO m_user (pegawai, username, password, id_role) VALUES ($1, $2, $3, $4)', [pegawai, username, hash, id_role], (err, result) => {
             if (err) {
@@ -390,9 +401,9 @@ const add_m_user = (request, response) => {
                 return response.status(500).json({ message: 'Gagal menambahkan data user' }); // Handle error
             }
             response.status(201).json({ message: 'Data berhasil ditambahkan' });
-            });
         });
-    };
+    });
+};
 
 const update_m_user = (request, response) => {
     const id = request.params.id;
@@ -400,6 +411,17 @@ const update_m_user = (request, response) => {
     const username = request.body.username;
     const password = request.body.password;
     const id_role = request.body.id_role;
+
+    if (!password || String(password).trim() === '') {
+        pool.query('UPDATE m_user SET pegawai = $1, username = $2, id_role = $3 WHERE id = $4', [pegawai, username, id_role, id], (err, result) => {
+            if (err) {
+                console.error("Error updating data:", err);
+                return response.status(500).json({ message: 'Gagal update data user' });
+            }
+            return response.status(200).json({ message: 'Data berhasil diupdate' });
+        });
+        return;
+    }
 
     const saltRounds = 10; // Nilai yang direkomendasikan
 
@@ -409,16 +431,15 @@ const update_m_user = (request, response) => {
             return response.status(500).json({ message: 'Gagal mengenkripsi password' }); // Handle error
         }
 
-
-    pool.query('UPDATE m_user SET pegawai = $1, username = $2, password = $3, id_role = $4 WHERE id = $5', [pegawai,username,hash,id_role,id], (err, result) => {
-        if (err) {
-            console.error("Error inserting data:", err);
-            return response.status(500).json({ message: 'Gagal update data user' }); // Handle error
-        }
-        response.status(201).json({ message: 'Data berhasil diupdate' });
-            });
+        pool.query('UPDATE m_user SET pegawai = $1, username = $2, password = $3, id_role = $4 WHERE id = $5', [pegawai, username, hash, id_role, id], (err, result) => {
+            if (err) {
+                console.error("Error updating data:", err);
+                return response.status(500).json({ message: 'Gagal update data user' }); // Handle error
+            }
+            return response.status(200).json({ message: 'Data berhasil diupdate' });
         });
-    }
+    });
+}
 
 const delete_m_user = (request, response) => {
     const id = request.params.id;
@@ -435,7 +456,11 @@ const delete_m_user = (request, response) => {
 //m_role
 const get_m_role = (request, response) => {
     pool.query('SELECT * FROM role ORDER BY id ASC', (err, result) => {
-        response.status(200).json(result.rows);
+        if (err) {
+            console.error("Error fetching roles:", err);
+            return response.status(500).json({ message: 'Internal Server Error' });
+        }
+        return response.status(200).json(result.rows);
     });
 }
 
@@ -444,9 +469,9 @@ const add_m_role = (request, response) => {
     pool.query('INSERT INTO role (kode, nama) VALUES ($1, $2)', [kode, nama], (err, result) => {
         if(err){
             console.log(err);
-            response.status(500).json({message: 'Internal Server Error'});
+            return response.status(500).json({message: 'Internal Server Error'});
         }
-        response.status(201).json({message: 'Data berhasil ditambahkan'});
+        return response.status(201).json({message: 'Data berhasil ditambahkan'});
     });
 }
 
@@ -455,7 +480,21 @@ const login = (request, response) => {
     const username = request.body.username;
     const password = request.body.password;
 
-    pool.query('SELECT * FROM m_user WHERE username = $1', [username], (err, result) => {
+    if (!username || !password) {
+        return response.status(400).json({
+            status: 'error',
+            message: 'Username dan password wajib diisi'
+        });
+    }
+
+    const queryLogin = `
+        SELECT u.*, r.kode AS role_kode, r.nama AS role_nama
+        FROM m_user u
+        LEFT JOIN role r ON u.id_role = r.id
+        WHERE u.username = $1
+    `;
+
+    pool.query(queryLogin, [username], (err, result) => {
         if (err) {
             console.error("Error querying user:", err);
             return response.status(500).json({
@@ -477,29 +516,43 @@ const login = (request, response) => {
                 }
 
                 if (res === true) {
+                    const userData = {
+                        user_id: user.id,
+                        pegawai: user.pegawai,
+                        username: user.username,
+                        id_role: user.id_role,
+                        role_kode: user.role_kode || null,
+                        role_nama: user.role_nama || null,
+                    };
+                    const token = signToken(userData);
+                    setAuthCookie(request, response, token);
+
                     return response.status(200).json({
                         status: 'success',
                         message: 'Login berhasil',
-                        data: {
-                            user_id: user.id,
-                            pegawai: user.pegawai,
-                            username: user.username,
-                            id_role: user.id_role,
-                        },
+                        data: userData,
                     });
                 } else {
                     return response.status(401).json({
                         status: 'error',
-                        message: 'Password salah' // Pesan error hanya "Password salah"
+                        message: 'Username atau password salah'
                     });
                 }
             });
         } else {
             return response.status(401).json({
                 status: 'error',
-                message: 'Username tidak ditemukan' // Pesan error hanya "Username tidak ditemukan"
+                message: 'Username atau password salah'
             });
         }
+    });
+};
+
+const logout = (request, response) => {
+    clearAuthCookie(request, response);
+    return response.status(200).json({
+        status: 'success',
+        message: 'Logout berhasil',
     });
 };
 // transaksi penjualan
@@ -945,6 +998,7 @@ module.exports = {
     get_m_role,
     add_m_role,
     login,
+    logout,
     save_transaksi,
     trans_receipt,
     t_retur_receipt,

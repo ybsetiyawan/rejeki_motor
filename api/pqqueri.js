@@ -1,32 +1,8 @@
-// const get_all_m_item = (page, pageSize) => `
-//     SELECT 
-//         i.id AS item_id,
-//         i.kode,
-//         i.nama,
-//         i.modal,
-//         i.hpp,
-//         i.stok,
-//         s.nama AS satuan_nama,
-//         j.nama AS jenis_item_nama,
-//         j.kode AS jenis_item_kode
-//     FROM 
-//         m_item i
-//     JOIN 
-//         m_satuan s ON i.id_satuan = s.id
-//     JOIN 
-//         m_jenis_item j ON i.id_jenis_item = j.id
-//     ORDER BY 
-//         i.kode ASC
-//     LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize};
-// `;
-
-
 const get_all_user = `
     SELECT 
         i.id AS user_id,
         i.pegawai,
         i.username,
-        i.password,
         s.id AS id_role,
         s.nama AS role_nama
     FROM 
